@@ -1,5 +1,24 @@
-<div class="field" [style.width.px]="width" [style.height.px]="height" style="text-align:center">
-    <app-bat [x]="leftBatX" [y]="leftBatY" [hit]="leftBatHit"></app-bat>
-    <app-ball [x]="ballX" [y]="ballY"></app-ball>
-    <app-bat [x]="rightBatX" [y]="rightBatY" [hit]="rightBatHit"></app-bat>
+<div
+  class="field"
+  [style.width.px]="size.width"
+  [style.height.px]="size.height"
+  style="text-align:center"
+>
+  <app-bat
+    [gameFieldSize]="size"
+    [leftBat]="true"
+    [hit]="leftBatHit"
+    (event)="setLeftBatY($event)"
+  ></app-bat>
+  <app-ball
+    [gameFieldSize]="size"
+    [hitBat]="leftBatHit || rightBatHit"
+    (event)="setBallPosition($event)"
+  ></app-ball>
+  <app-bat
+    [gameFieldSize]="size"
+    [leftBat]="false"
+    [hit]="rightBatHit"
+    (event)="setRightBatY($event)"
+  ></app-bat>
 </div>

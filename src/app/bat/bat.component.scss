@@ -1,21 +1,18 @@
-
 .bat {
-    position: absolute;
-    height: 150px;
-    width: 10px;
-    background-color: blue;
-    border-radius: 6px;
+  position: absolute;
+  background-color: blue;
+  border-radius: 6px;
 }
 
 .hit {
-    background-color: white !important;
+  background-color: white !important;
 }
 
-.rotate-minus-15{
-    transition: 0.1s;
-    transform: rotate(-15deg);
+.rotate-minus-15 {
+  transition: 0.1s;
+  transform: rotate(-15deg);
 }
-.rotate-plus-15{
-    transition: 0.1s;
-    transform: rotate(15deg);
+.rotate-plus-15 {
+  transition: 0.1s;
+  transform: rotate(15deg);
 }

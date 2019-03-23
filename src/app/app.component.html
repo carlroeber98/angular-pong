@@ -1,11 +1,26 @@
-<app-gamefield [ballX]="ballLeft" [ballY]="ballTop" [leftBatY]="leftBatTop" [rightBatY]="rightBatTop"
-    [leftBatHit]="hitLeft" [rightBatHit]="hitRight"></app-gamefield>
+<app-gamefield (goalEvent)="goalEvent($event)"></app-gamefield>
 <div class="points">
-    <ul>{{leftPlayerPoints}}</ul>
-    <ul>:</ul>
-    <ul>{{rightPlayerPoints}}</ul>
+  <ul>
+    {{
+      leftPlayerPoints
+    }}
+  </ul>
+  <ul>
+    :
+  </ul>
+  <ul>
+    {{
+      rightPlayerPoints
+    }}
+  </ul>
 </div>
 <div style="text-align:center; margin-top: 20px">
-    <button (click)="startGame()" [disabled]="gameIsRunning" style="margin-right: 20px">Starten</button>
-    <button (click)="resetGame()">Zurücksetzen</button>
+  <button
+    (click)="startGame()"
+    [disabled]="gameIsRunning"
+    style="margin-right: 20px"
+  >
+    Starten
+  </button>
+  <button (click)="resetGame()">Zurücksetzen</button>
 </div>

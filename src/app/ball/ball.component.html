@@ -1,1 +1,9 @@
-<div class="ball" [class.hit]="hitLeft || hitRight" [style.top.px]="y" [style.left.px]="x"></div>
+<div
+  class="ball"
+  [class.hit]="hitBat"
+  [style.top.px]="position.y"
+  [style.left.px]="position.x"
+  [style.height.px]="diameter"
+  [style.width.px]="diameter"
+  [style.border-radius.px]="diameter / 2"
+></div>
