@@ -8,10 +8,19 @@ import { BatComponent } from '../bat/bat.component';
   templateUrl: './gamefield.component.html',
   styleUrls: ['./gamefield.component.scss'],
 })
+
+
+
 export class GamefieldComponent {
 
-  @Input() width = 1500;
-  @Input() height = 790;
+  height: number;
+  width: number;
+
+  @HostListener('window:resize', ['$event'])
+  onResize(event?) {
+    this.height = window.innerHeight * 0.8;
+    this.width = window.innerWidth * 0.9;
+  }
 
   @Input() leftBatHit: boolean;
   @Input() rightBatHit: boolean;
@@ -21,10 +30,13 @@ export class GamefieldComponent {
 
   @Input() leftBatY: number;
   @Input() rightBatY: number;
+  
   private leftBatX = 20;
   private rightBatX = this.width - 20;
 
-  constructor() {}
+  constructor() {
+    this.onResize();
+  }
   
 
 }
