@@ -16,35 +16,38 @@ export class BallComponent implements OnInit {
   @Input() gameFieldSize: { height: number; width: number };
   @Input() hitBat: boolean;
 
-  @Output() event = new EventEmitter<{}>();
-
-  constructor(gamefieldSize: any) {
-    this.gameFieldSize = gamefieldSize;
-    this.position.x = this.gameFieldSize.width / 2 - this.diameter / 2;
-    this.position.y = this.gameFieldSize.height / 2 - this.diameter / 2;
-    this.event.emit(this.position);
-  }
+  constructor() {}
 
   ngOnInit() {
-    this.position.x = this.gameFieldSize.width / 2 - this.diameter / 2;
-    this.position.y = this.gameFieldSize.height / 2 - this.diameter / 2;
-    this.event.emit(this.position);
+    this.setInitPosition();
   }
 
-  calculate(movement: any) {
-    if (movement.direction.x < 0) {
+  setInitPosition() {
+    this.position.x = this.gameFieldSize.width / 2 - this.diameter / 2;
+    this.position.y = this.gameFieldSize.height / 2 - this.diameter / 2;
+  }
+
+  calculateXMovement(x: number) {
+    if (x < 0) {
+      this.position.x--;
+    } else {
+      this.position.x++;
+    }
+  }
+
+  calculateYMovement(y: number) {
+    if (y < 0) {
       this.position.y--;
     } else {
       this.position.y++;
     }
-    this.event.emit(this.position);
   }
 
   getPosition() {
     return this.position;
   }
 
-  getDiameter() {
+  getDiameter(): number {
     return this.diameter;
   }
 }

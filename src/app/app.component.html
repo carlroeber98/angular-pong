@@ -1,19 +1,9 @@
-<app-gamefield (goalEvent)="goalEvent($event)"></app-gamefield>
-<div class="points">
-  <ul>
-    {{
-      leftPlayerPoints
-    }}
-  </ul>
-  <ul>
-    :
-  </ul>
-  <ul>
-    {{
-      rightPlayerPoints
-    }}
-  </ul>
-</div>
+<app-gamefield #gamefield (goalEvent)="goalEvent($event)"></app-gamefield>
+<app-points
+  #points
+  [leftPlayerPoints]="leftPlayerPoints"
+  [rightPlayerPoints]="rightPlayerPoints"
+></app-points>
 <div style="text-align:center; margin-top: 20px">
   <button
     (click)="startGame()"

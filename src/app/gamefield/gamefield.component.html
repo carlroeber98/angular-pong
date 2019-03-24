@@ -5,20 +5,20 @@
   style="text-align:center"
 >
   <app-bat
+    #leftBat
     [gameFieldSize]="size"
     [leftBat]="true"
     [hit]="leftBatHit"
-    (event)="setLeftBatY($event)"
   ></app-bat>
   <app-ball
+    #ball
     [gameFieldSize]="size"
     [hitBat]="leftBatHit || rightBatHit"
-    (event)="setBallPosition($event)"
   ></app-ball>
   <app-bat
+    #rightBat
     [gameFieldSize]="size"
     [leftBat]="false"
     [hit]="rightBatHit"
-    (event)="setRightBatY($event)"
   ></app-bat>
 </div>

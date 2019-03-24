@@ -3,12 +3,10 @@ import {
   ChangeDetectorRef,
   Component,
   HostListener,
-  Input,
-  OnInit,
-  Output
+  ViewChild
 } from "@angular/core";
 import { getTView } from "@angular/core/src/render3/state";
-import { GamefieldComponent } from "./gamefield/gamefield.component";
+import { KEY_CODE } from "./key-code.enum";
 
 @Component({
   selector: "app-root",
@@ -17,33 +15,36 @@ import { GamefieldComponent } from "./gamefield/gamefield.component";
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
-  private gameField: GamefieldComponent;
-
   leftPlayerPoints = 0;
   rightPlayerPoints = 0;
 
   gameIsRunning = false;
 
   private movement = {
-    speed: 0,
+    speed: 5,
     direction: {
-      x: 0,
-      y: 0
+      x: 2,
+      y: 1
     }
   };
 
-  leftBatTop = 320;
-  rightBatTop = 320;
+  @ViewChild("gamefield") gameField;
 
-  ballTop = 380;
-  ballLeft = 730;
+  constructor(private cdr: ChangeDetectorRef) {}
 
-  constructor(private cdr: ChangeDetectorRef) {
-    this.gameField = new GamefieldComponent();
+  @HostListener("window:keydown", ["$event"])
+  keyDownEvent(event: KeyboardEvent) {
+    if (KEY_CODE.ENTER_KEY === event.keyCode) {
+      if (this.gameIsRunning) {
+        this.resetField();
+      } else {
+        this.startGame();
+      }
+    }
   }
 
   startGame() {
-    this.calculateRandomMovement();
+    //this.calculateRandomMovement();
     if (!this.gameIsRunning) {
       this.gameIsRunning = true;
       this.nextMove();
@@ -97,11 +98,7 @@ export class AppComponent {
       return;
     }
 
-    this.leftBatTop = 320;
-    this.rightBatTop = 320;
-
-    this.ballTop = 380;
-    this.ballLeft = 730;
+    this.gameField.reset();
 
     this.movement.direction.x = 0;
     this.movement.direction.y = 0;
