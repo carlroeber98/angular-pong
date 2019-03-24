@@ -44,7 +44,7 @@ export class AppComponent {
   }
 
   startGame() {
-    //this.calculateRandomMovement();
+    this.calculateRandomMovement();
     if (!this.gameIsRunning) {
       this.gameIsRunning = true;
       this.nextMove();

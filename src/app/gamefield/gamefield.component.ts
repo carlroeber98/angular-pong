@@ -121,7 +121,7 @@ export class GamefieldComponent implements OnInit {
 
   checkHitRightBat() {
     if (
-      this.ball.getPosition().x >=
+      this.ball.getPosition().x + this.ball.getDiameter() >=
         this.size.width - (this.size.width - this.rightBat.getPosition().x) &&
       this.ball.getPosition().y >= this.rightBat.getPosition().y &&
       this.ball.getPosition().y + this.ball.getDiameter() <=

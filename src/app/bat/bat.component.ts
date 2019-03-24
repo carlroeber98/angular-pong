@@ -109,7 +109,6 @@ export class BatComponent implements OnInit {
   }
 
   calculateRightBatMove() {
-    console.log("hier");
     if (
       this.key &&
       this.position.y + (this.key === KEY_CODE.UP_ARROW ? -10 : 10) >= 0 &&
