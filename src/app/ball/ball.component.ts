@@ -27,20 +27,9 @@ export class BallComponent implements OnInit {
     this.position.y = this.gameFieldSize.height / 2 - this.diameter / 2;
   }
 
-  calculateXMovement(x: number) {
-    if (x < 0) {
-      this.position.x--;
-    } else {
-      this.position.x++;
-    }
-  }
-
-  calculateYMovement(y: number) {
-    if (y < 0) {
-      this.position.y--;
-    } else {
-      this.position.y++;
-    }
+  calculateMovement(x: number, y: number) {
+    this.position.x += x;
+    this.position.y += y;
   }
 
   getPosition() {

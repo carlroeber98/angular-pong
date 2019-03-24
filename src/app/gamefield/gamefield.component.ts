@@ -43,12 +43,30 @@ export class GamefieldComponent implements OnInit {
     // this.onResize();
   }
 
-  calculateMoves(movement: any) {
-    // TODO:Fix bug if the ball hits the bat not at the right site (if the angle is too big the ball hit the bat
-    // but x * -1 + 1is not workinkg and gets called multiple times because the ball is still inside the bat range)
-    for (let l = 0; l < Math.abs(movement.direction.x); l++) {
-      // calculate new ball position
-      this.ball.calculateXMovement(movement.direction.x);
+  calculateMoves(direction: any) {
+    let x = direction.x;
+    let y = direction.y;
+
+    // Calculate new x, y value smaller than 1 so that the ball movement can adjusted before hitting something
+    let loopEntries = 1;
+    while (Math.abs(x) >= 1 || Math.abs(y) >= 1) {
+      x = x / 2;
+      y = y / 2;
+      loopEntries = loopEntries * 2;
+    }
+
+    let topBottomEvent = false;
+    let leftRightBatEvent = false;
+    let plusTwirlEvent = false;
+    let minusTwirlEvent = false;
+    for (let l = 0; l < loopEntries; l++) {
+      // Calculate new ball position
+      this.ball.calculateMovement(x, y);
+
+      if (this.checkHitTopOrBottom()) {
+        y = y * -1;
+        topBottomEvent = true;
+      }
 
       if (this.ball.getPosition().x <= 0) {
         this.goalEvent.emit(true);
@@ -64,32 +82,45 @@ export class GamefieldComponent implements OnInit {
 
       const leftBatHit = this.checkHitLeftBat();
       const rightBatHit = this.checkHitRightBat();
+      const leftBatTopBottomHit = this.checkHitTopOrBottomLeftBat();
+      const rightBatTopBottomHit = this.checkHitTopOrBottomRightBat();
+      if (leftBatTopBottomHit || rightBatTopBottomHit) {
+        console.log("Do somethink, like changing the angle!");
+      }
       if (leftBatHit || rightBatHit) {
-        movement.direction.x = movement.direction.x * -1;
+        x = x * -1;
+        leftRightBatEvent = true;
         if (
           (leftBatHit || rightBatHit) &&
           (this.leftBat.isUpKeyPressed() || this.rightBat.isUpKeyPressed())
         ) {
-          movement.direction.y -= 3;
+          minusTwirlEvent = true;
         } else if (
           (leftBatHit || rightBatHit) &&
           (this.leftBat.isDownKeyPressed() || this.rightBat.isDownKeyPressed())
         ) {
-          movement.direction.y += 3;
+          plusTwirlEvent = true;
         }
       }
     }
 
-    for (let l = 0; l < Math.abs(movement.direction.y); l++) {
-      this.ball.calculateYMovement(movement.direction.y);
-      if (this.checkHitTopOrBottom()) {
-        movement.direction.y = movement.direction.y * -1;
-      }
+    if (topBottomEvent) {
+      direction.y = direction.y * -1;
     }
+    if (leftRightBatEvent) {
+      direction.x = direction.x * -1;
+    }
+    if (plusTwirlEvent) {
+      direction.y += 3;
+    }
+    if (minusTwirlEvent) {
+      direction.y -= 3;
+    }
+
     // render the bats
     this.calculateBats();
 
-    return movement;
+    return direction;
   }
 
   checkHitTopOrBottom() {
@@ -119,6 +150,25 @@ export class GamefieldComponent implements OnInit {
     return false;
   }
 
+  checkHitTopOrBottomLeftBat() {
+    // TODO: correct this
+    if (
+      this.ball.getPosition().x <= 30 &&
+      this.ball.getPosition().x >= 10 &&
+      this.ball.getPosition().y >= this.leftBat.getPosition().y &&
+      this.ball.getPosition().y + this.ball.getDiameter() <=
+        this.leftBat.getPosition().y + this.leftBat.getSize().height
+    ) {
+      console.log("hier");
+      return true;
+    }
+    return false;
+  }
+
+  checkHitTopOrBottomRightBat() {
+    return false; // TODO:
+  }
+
   checkHitRightBat() {
     if (
       this.ball.getPosition().x + this.ball.getDiameter() >=
@@ -137,6 +187,8 @@ export class GamefieldComponent implements OnInit {
   }
 
   reset() {
+    this.leftBatHit = false;
+    this.rightBatHit = false;
     this.ball.setInitPosition();
     this.leftBat.setInitPosition();
     this.rightBat.setInitPosition();

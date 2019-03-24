@@ -21,10 +21,10 @@ export class AppComponent {
   gameIsRunning = false;
 
   private movement = {
-    speed: 5,
+    speed: 2,
     direction: {
-      x: 2,
-      y: 1
+      x: 0,
+      y: 0
     }
   };
 
@@ -56,16 +56,16 @@ export class AppComponent {
       return;
     }
 
-    const newMovement = this.gameField.calculateMoves(this.movement);
+    const newDirection = this.gameField.calculateMoves(this.movement.direction);
 
     // Render actual positions
     this.cdr.detectChanges();
 
-    if (newMovement == null) {
+    if (newDirection == null) {
       this.gameIsRunning = false;
       return;
     } else {
-      this.movement = newMovement;
+      this.movement.direction = newDirection;
     }
 
     // Render new position
