@@ -1,3 +1,4 @@
+import { GameControlService } from './../game-control.service';
 import {
   Component,
   OnInit,
@@ -6,15 +7,15 @@ import {
   Output,
   EventEmitter,
   ViewChild
-} from "@angular/core";
-import { getTView } from "@angular/core/src/render3/state";
-import { BallComponent } from "../ball/ball.component";
-import { BatComponent } from "../bat/bat.component";
+} from '@angular/core';
+import { getTView } from '@angular/core/src/render3/state';
+import { BallComponent } from '../ball/ball.component';
+import { BatComponent } from '../bat/bat.component';
 
 @Component({
-  selector: "app-gamefield",
-  templateUrl: "./gamefield.component.html",
-  styleUrls: ["./gamefield.component.scss"]
+  selector: 'app-gamefield',
+  templateUrl: './gamefield.component.html',
+  styleUrls: ['./gamefield.component.scss']
 })
 export class GamefieldComponent implements OnInit {
   private size = {
@@ -27,20 +28,21 @@ export class GamefieldComponent implements OnInit {
 
   @Output() goalEvent = new EventEmitter<boolean>();
 
-  @ViewChild("ball") ball;
-  @ViewChild("leftBat") leftBat;
-  @ViewChild("rightBat") rightBat;
+  @ViewChild('ball') ball;
+  @ViewChild('leftBat') leftBat;
+  @ViewChild('rightBat') rightBat;
 
-  @HostListener("window:resize", ["$event"])
+  @HostListener('window:resize', ['$event'])
   onResize(event?) {
     this.size.height = window.innerHeight * 0.8;
     this.size.width = window.innerWidth * 0.85;
   }
 
-  constructor() {}
+  constructor(private gameControlService: GameControlService) {}
 
   ngOnInit() {
     // this.onResize();
+    this.gameControlService.gameState.subscribe(console.log);
   }
 
   calculateMoves(direction: any) {
@@ -85,7 +87,7 @@ export class GamefieldComponent implements OnInit {
       const leftBatTopBottomHit = this.checkHitTopOrBottomLeftBat();
       const rightBatTopBottomHit = this.checkHitTopOrBottomRightBat();
       if (leftBatTopBottomHit || rightBatTopBottomHit) {
-        console.log("Do somethink, like changing the angle!");
+        console.log('Do somethink, like changing the angle!');
       }
       if (leftBatHit || rightBatHit) {
         x = x * -1;
@@ -159,7 +161,7 @@ export class GamefieldComponent implements OnInit {
       this.ball.getPosition().y + this.ball.getDiameter() <=
         this.leftBat.getPosition().y + this.leftBat.getSize().height
     ) {
-      console.log("hier");
+      console.log('hier');
       return true;
     }
     return false;

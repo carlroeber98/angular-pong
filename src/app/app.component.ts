@@ -1,17 +1,18 @@
+import { GameControlService } from './game-control.service';
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
   Component,
   HostListener,
   ViewChild
-} from "@angular/core";
-import { getTView } from "@angular/core/src/render3/state";
-import { KEY_CODE } from "./key-code.enum";
+} from '@angular/core';
+import { getTView } from '@angular/core/src/render3/state';
+import { KEY_CODE } from './key-code.enum';
 
 @Component({
-  selector: "app-root",
-  templateUrl: "./app.component.html",
-  styleUrls: ["./app.component.scss"],
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AppComponent {
@@ -28,11 +29,14 @@ export class AppComponent {
     }
   };
 
-  @ViewChild("gamefield") gameField;
+  @ViewChild('gamefield') gameField;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private gameControlService: GameControlService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
-  @HostListener("window:keydown", ["$event"])
+  @HostListener('window:keydown', ['$event'])
   keyDownEvent(event: KeyboardEvent) {
     if (KEY_CODE.ENTER_KEY === event.keyCode) {
       if (this.gameIsRunning) {
@@ -44,6 +48,7 @@ export class AppComponent {
   }
 
   startGame() {
+    this.gameControlService.startGame();
     this.calculateRandomMovement();
     if (!this.gameIsRunning) {
       this.gameIsRunning = true;
@@ -87,13 +92,13 @@ export class AppComponent {
     this.gameIsRunning = false;
 
     if (this.leftPlayerPoints === 6) {
-      alert("Player 1 won the game");
+      alert('Player 1 won the game');
       this.resetGame();
       return;
     }
 
     if (this.rightPlayerPoints === 6) {
-      alert("Player 2 won the game");
+      alert('Player 2 won the game');
       this.resetGame();
       return;
     }
@@ -123,6 +128,7 @@ export class AppComponent {
   }
 
   resetGame() {
+    this.gameControlService.stopGame();
     this.gameIsRunning = false;
     this.leftPlayerPoints = 0;
     this.rightPlayerPoints = 0;
