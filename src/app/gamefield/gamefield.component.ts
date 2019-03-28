@@ -40,7 +40,7 @@ export class GamefieldComponent implements OnInit {
   onResize(event?) {
     this.size.height = window.innerHeight * 0.8;
     this.size.width = window.innerWidth * 0.85;
-    console.log(this.size.height, this.size.width);
+
     this.gameCalculationService.setStopAndInitState();
   }
 
@@ -227,7 +227,7 @@ export class GamefieldComponent implements OnInit {
 
   private calculateDuration(milliSeconds: number) {
     setTimeout(() => {
-      if (this.ballRotationDuration < 1) {
+      if (this.ballRotationDuration < 2) {
         this.ballRotationDuration += 0.1;
         this.calculateDuration(milliSeconds);
       } else {
