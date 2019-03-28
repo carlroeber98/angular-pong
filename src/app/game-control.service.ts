@@ -1,39 +1,37 @@
-import { Injectable } from '@angular/core';
-import { Observable, Subject, TimeInterval } from 'rxjs';
-
-export enum GameState {
-  INITIAL = 'initial',
-  RUNNING = 'running',
-  PAUSED = 'paused',
-  STOPPED = 'stopped'
-}
+import { Injectable } from "@angular/core";
+import { Observable, Subject, TimeInterval } from "rxjs";
+import { GameCalculationService } from "./game-calculation.service";
+import { GameState } from "./game-state.enum";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class GameControlService {
-  private gameTicker: Subject<GameState>;
+  private gameHandler: Subject<GameState>;
   private interval: any;
 
+  private framesPerSecond = 50;
+
   constructor() {
-    this.gameTicker = new Subject<GameState>();
-    this.gameTicker.next(GameState.INITIAL);
+    this.gameHandler = new Subject<GameState>();
   }
 
   public startGame(): void {
     this.interval = setInterval(() => {
-      this.gameTicker.next(GameState.RUNNING);
-    }, 1000 / 16);
+      this.gameHandler.next(GameState.RUNNING);
+    }, 1000 / this.framesPerSecond);
   }
 
   public stopGame(): void {
     clearInterval(this.interval);
-    this.gameTicker.next(GameState.STOPPED);
+    this.gameHandler.next(GameState.STOPPED);
   }
 
-  public resetGame(): void {}
+  public setInitialGameField(): void {
+    this.gameHandler.next(GameState.INITIAL);
+  }
 
-  public get gameState(): Observable<GameState> {
-    return this.gameTicker;
+  public get getGameHandler(): Observable<GameState> {
+    return this.gameHandler;
   }
 }

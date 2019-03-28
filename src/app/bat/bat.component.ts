@@ -77,7 +77,7 @@ export class BatComponent implements OnInit {
     this.setInitPosition();
   }
 
-  setInitPosition() {
+  public setInitPosition(): void {
     if (this.leftBat) {
       this.position.x = 20;
       this.position.y = this.gameFieldSize.height / 2 - this.size.height / 2;
@@ -87,7 +87,7 @@ export class BatComponent implements OnInit {
     }
   }
 
-  calculate() {
+  public calculate(): void {
     if (this.leftBat) {
       this.calculateLeftBatMove();
     } else {
@@ -95,51 +95,43 @@ export class BatComponent implements OnInit {
     }
   }
 
-  calculateLeftBatMove() {
+  private calculateLeftBatMove(): void {
     if (
       this.key &&
-      this.position.y + (this.key === KEY_CODE.W_KEY ? -10 : 10) >= 0 &&
-      this.position.y + (this.key === KEY_CODE.W_KEY ? -10 : 10) <=
+      this.position.y + (this.key === KEY_CODE.W_KEY ? -5 : 5) >= 0 &&
+      this.position.y + (this.key === KEY_CODE.W_KEY ? -5 : 5) <=
         this.gameFieldSize.height - this.size.height
     ) {
-      this.position.y += this.key === KEY_CODE.W_KEY ? -10 : 10;
+      this.position.y += this.key === KEY_CODE.W_KEY ? -5 : 5;
     } else if (this.leftBat) {
       this.key = null;
     }
   }
 
-  calculateRightBatMove() {
+  private calculateRightBatMove(): void {
     if (
       this.key &&
-      this.position.y + (this.key === KEY_CODE.UP_ARROW ? -10 : 10) >= 0 &&
-      this.position.y + (this.key === KEY_CODE.UP_ARROW ? -10 : 10) <=
+      this.position.y + (this.key === KEY_CODE.UP_ARROW ? -5 : 5) >= 0 &&
+      this.position.y + (this.key === KEY_CODE.UP_ARROW ? -5 : 5) <=
         this.gameFieldSize.height - this.size.height
     ) {
-      this.position.y += this.key === KEY_CODE.UP_ARROW ? -10 : 10;
+      this.position.y += this.key === KEY_CODE.UP_ARROW ? -5 : 5;
     } else {
       this.key = null;
     }
   }
 
-  isUpKeyPressed() {
+  public isUpKeyPressed(): boolean {
     return (
       this.key != null &&
       (this.key === KEY_CODE.UP_ARROW || this.key === KEY_CODE.W_KEY)
     );
   }
 
-  isDownKeyPressed() {
+  public isDownKeyPressed(): boolean {
     return (
       this.key != null &&
       (this.key === KEY_CODE.DOWN_ARROW || this.key === KEY_CODE.S_KEY)
     );
-  }
-
-  getPosition() {
-    return this.position;
-  }
-
-  getSize() {
-    return this.size;
   }
 }

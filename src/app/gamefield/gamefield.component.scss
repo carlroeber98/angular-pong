@@ -1,8 +1,45 @@
 .field {
-    background-color: grey;
-    border: 5px solid black;
-    margin: auto;
-    position: relative;
+  background-color: forestgreen;
+  border: 5px solid black;
+  margin: auto;
+  position: relative;
+  list-style: none;
+  position: relative;
+  border: 5px solid grey;
+  background-image: -webkit-linear-gradient(
+    0,
+    transparent 50%,
+    rgba(255, 255, 255, 0.2) 50%
+  );
+  background-size: 100px;
 }
 
- 
+.field:after {
+  content: "";
+  border-left: 5px solid white;
+  position: absolute;
+  display: block;
+  height: 100%;
+  left: 50%;
+}
+
+.center-circle {
+  position: absolute;
+  top: 40%;
+  left: 45%;
+  width: calc(15vh);
+  height: calc(15vh);
+  border: 5px solid white;
+  border-radius: 50%;
+}
+.center-circle:after {
+  position: absolute;
+  top: 47%;
+  left: 47%;
+  width: 5px;
+  height: 5px;
+  background-color: white;
+  content: "";
+  border: 5px solid white;
+  border-radius: 10px;
+}

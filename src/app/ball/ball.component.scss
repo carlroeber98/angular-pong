@@ -1,9 +1,28 @@
 .ball {
   position: absolute;
-  background-color: blue;
+  background-color: white;
   z-index: 2;
+  animation-iteration-count: infinite;
+}
+
+@keyframes clockwise {
+  from {
+    transform: scale(1) rotate3d(0, 0, 1, 0deg);
+  }
+  to {
+    transform: scale(1.1) rotate3d(0, 0, 1, 360deg);
+  }
+}
+
+@keyframes counter-clockwise {
+  from {
+    transform: scale(1) rotate3d(0, 0, 1, 360deg);
+  }
+  to {
+    transform: scale(1.1) rotate3d(0, 0, 1, 0deg);
+  }
 }
 
 .hit {
-  background-color: white !important;
+  background-color: darkgray;
 }

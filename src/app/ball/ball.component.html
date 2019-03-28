@@ -6,4 +6,14 @@
   [style.height.px]="diameter"
   [style.width.px]="diameter"
   [style.border-radius.px]="diameter / 2"
-></div>
+  [style.animation-name]="rotation"
+  [style.animation-duration.s]="rotationDuration"
+>
+  <svg-icon
+    src="assets/images/ball.svg"
+    [svgStyle]="{
+      'width.px': diameter,
+      'height.px': diameter
+    }"
+  ></svg-icon>
+</div>

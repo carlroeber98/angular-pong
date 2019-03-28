@@ -4,6 +4,7 @@
   [style.height.px]="size.height"
   style="text-align:center"
 >
+  <div class="center-circle"></div>
   <app-bat
     #leftBat
     [gameFieldSize]="size"
@@ -14,6 +15,8 @@
     #ball
     [gameFieldSize]="size"
     [hitBat]="leftBatHit || rightBatHit"
+    [rotation]="ballRotation"
+    [rotationDuration]="ballRotationDuration"
   ></app-ball>
   <app-bat
     #rightBat

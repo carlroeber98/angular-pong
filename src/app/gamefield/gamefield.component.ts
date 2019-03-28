@@ -1,4 +1,4 @@
-import { GameControlService } from './../game-control.service';
+import { GameControlService } from "./../game-control.service";
 import {
   Component,
   OnInit,
@@ -7,15 +7,17 @@ import {
   Output,
   EventEmitter,
   ViewChild
-} from '@angular/core';
-import { getTView } from '@angular/core/src/render3/state';
-import { BallComponent } from '../ball/ball.component';
-import { BatComponent } from '../bat/bat.component';
+} from "@angular/core";
+import { getTView } from "@angular/core/src/render3/state";
+import { BallComponent } from "../ball/ball.component";
+import { BatComponent } from "../bat/bat.component";
+import { GameCalculationService } from "../game-calculation.service";
+import { GameState } from "../game-state.enum";
 
 @Component({
-  selector: 'app-gamefield',
-  templateUrl: './gamefield.component.html',
-  styleUrls: ['./gamefield.component.scss']
+  selector: "app-gamefield",
+  templateUrl: "./gamefield.component.html",
+  styleUrls: ["./gamefield.component.scss"]
 })
 export class GamefieldComponent implements OnInit {
   private size = {
@@ -25,27 +27,42 @@ export class GamefieldComponent implements OnInit {
 
   private leftBatHit: boolean;
   private rightBatHit: boolean;
+  private ballRotation: string;
+  private ballRotationDuration: number;
 
   @Output() goalEvent = new EventEmitter<boolean>();
 
-  @ViewChild('ball') ball;
-  @ViewChild('leftBat') leftBat;
-  @ViewChild('rightBat') rightBat;
+  @ViewChild("ball") ball;
+  @ViewChild("leftBat") leftBat;
+  @ViewChild("rightBat") rightBat;
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener("window:resize", ["$event"])
   onResize(event?) {
     this.size.height = window.innerHeight * 0.8;
     this.size.width = window.innerWidth * 0.85;
+    console.log(this.size.height, this.size.width);
+    this.gameCalculationService.setStopAndInitState();
   }
 
-  constructor(private gameControlService: GameControlService) {}
+  constructor(private gameCalculationService: GameCalculationService) {}
 
   ngOnInit() {
-    // this.onResize();
-    this.gameControlService.gameState.subscribe(console.log);
+    this.gameCalculationService.getGameTicker.subscribe(
+      ({ gameState, direction }) => {
+        switch (gameState) {
+          case GameState.INITIAL:
+            this.reset();
+            break;
+          case GameState.RUNNING:
+            this.calculateMoves(direction);
+            break;
+        }
+      }
+    );
+    this.onResize();
   }
 
-  calculateMoves(direction: any) {
+  private calculateMoves(direction: any): void {
     let x = direction.x;
     let y = direction.y;
 
@@ -66,18 +83,18 @@ export class GamefieldComponent implements OnInit {
       this.ball.calculateMovement(x, y);
 
       if (this.checkHitTopOrBottom()) {
+        this.ballRotation = x > 0 ? "clockwise" : "counter-clockwise";
+        this.ballRotationDuration = 0.7;
+        this.calculateDuration(3000);
         y = y * -1;
         topBottomEvent = true;
       }
 
-      if (this.ball.getPosition().x <= 0) {
+      if (this.ball.position.x <= 0) {
         this.goalEvent.emit(true);
         return;
       }
-      if (
-        this.ball.getPosition().x >=
-        this.size.width - this.ball.getDiameter()
-      ) {
+      if (this.ball.position.x >= this.size.width - this.ball.diameter) {
         this.goalEvent.emit(false);
         return;
       }
@@ -87,21 +104,29 @@ export class GamefieldComponent implements OnInit {
       const leftBatTopBottomHit = this.checkHitTopOrBottomLeftBat();
       const rightBatTopBottomHit = this.checkHitTopOrBottomRightBat();
       if (leftBatTopBottomHit || rightBatTopBottomHit) {
-        console.log('Do somethink, like changing the angle!');
+        y = y * -1;
+        console.log("Do somethink, like changing the angle!");
       }
       if (leftBatHit || rightBatHit) {
         x = x * -1;
         leftRightBatEvent = true;
-        if (
-          (leftBatHit || rightBatHit) &&
-          (this.leftBat.isUpKeyPressed() || this.rightBat.isUpKeyPressed())
-        ) {
-          minusTwirlEvent = true;
-        } else if (
-          (leftBatHit || rightBatHit) &&
-          (this.leftBat.isDownKeyPressed() || this.rightBat.isDownKeyPressed())
-        ) {
-          plusTwirlEvent = true;
+        if (leftBatHit || rightBatHit) {
+          if (this.leftBat.isUpKeyPressed() || this.rightBat.isUpKeyPressed()) {
+            minusTwirlEvent = true;
+            this.ballRotation = "clockwise";
+            this.ballRotationDuration = 0.2;
+            this.calculateDuration(5000);
+          } else if (
+            this.leftBat.isDownKeyPressed() ||
+            this.rightBat.isDownKeyPressed()
+          ) {
+            plusTwirlEvent = true;
+            this.ballRotation = "counter-clockwise";
+            this.ballRotationDuration = 0.2;
+            this.calculateDuration(5000);
+          }
+        } else {
+          this.ballRotationDuration = 0.6;
         }
       }
     }
@@ -121,27 +146,25 @@ export class GamefieldComponent implements OnInit {
 
     // render the bats
     this.calculateBats();
-
-    return direction;
   }
 
-  checkHitTopOrBottom() {
+  private checkHitTopOrBottom(): boolean {
     if (
-      this.ball.getPosition().y <= 0 ||
-      this.ball.getPosition().y >= this.size.height - this.ball.getDiameter()
+      this.ball.position.y <= 0 ||
+      this.ball.position.y >= this.size.height - this.ball.diameter
     ) {
       return true;
     }
     return false;
   }
 
-  checkHitLeftBat() {
+  private checkHitLeftBat(): boolean {
     if (
-      this.ball.getPosition().x <=
-        this.leftBat.getPosition().x + this.leftBat.getSize().width &&
-      this.ball.getPosition().y >= this.leftBat.getPosition().y &&
-      this.ball.getPosition().y + this.ball.getDiameter() <=
-        this.leftBat.getPosition().y + this.leftBat.getSize().height
+      this.ball.position.x <=
+        this.leftBat.position.x + this.leftBat.size.width &&
+      this.ball.position.y >= this.leftBat.position.y &&
+      this.ball.position.y + this.ball.diameter <=
+        this.leftBat.position.y + this.leftBat.size.height
     ) {
       this.leftBatHit = true;
       setTimeout(() => {
@@ -152,32 +175,31 @@ export class GamefieldComponent implements OnInit {
     return false;
   }
 
-  checkHitTopOrBottomLeftBat() {
+  private checkHitTopOrBottomLeftBat(): boolean {
     // TODO: correct this
     if (
-      this.ball.getPosition().x <= 30 &&
-      this.ball.getPosition().x >= 10 &&
-      this.ball.getPosition().y >= this.leftBat.getPosition().y &&
-      this.ball.getPosition().y + this.ball.getDiameter() <=
-        this.leftBat.getPosition().y + this.leftBat.getSize().height
+      this.ball.position.x <= 30 &&
+      this.ball.position.x >= 10 &&
+      this.ball.position.y >= this.leftBat.position.y &&
+      this.ball.position.y + this.ball.diameter <=
+        this.leftBat.position.y + this.leftBat.size.height
     ) {
-      console.log('hier');
       return true;
     }
     return false;
   }
 
-  checkHitTopOrBottomRightBat() {
+  private checkHitTopOrBottomRightBat(): boolean {
     return false; // TODO:
   }
 
-  checkHitRightBat() {
+  private checkHitRightBat(): boolean {
     if (
-      this.ball.getPosition().x + this.ball.getDiameter() >=
-        this.size.width - (this.size.width - this.rightBat.getPosition().x) &&
-      this.ball.getPosition().y >= this.rightBat.getPosition().y &&
-      this.ball.getPosition().y + this.ball.getDiameter() <=
-        this.rightBat.getPosition().y + this.rightBat.getSize().height
+      this.ball.position.x + this.ball.diameter >=
+        this.size.width - (this.size.width - this.rightBat.position.x) &&
+      this.ball.position.y >= this.rightBat.position.y &&
+      this.ball.position.y + this.ball.diameter <=
+        this.rightBat.position.y + this.rightBat.size.height
     ) {
       this.rightBatHit = true;
       setTimeout(() => {
@@ -188,16 +210,30 @@ export class GamefieldComponent implements OnInit {
     return false;
   }
 
-  reset() {
+  private reset(): void {
     this.leftBatHit = false;
     this.rightBatHit = false;
+    this.ballRotationDuration = 0;
+    this.ballRotation = null;
     this.ball.setInitPosition();
     this.leftBat.setInitPosition();
     this.rightBat.setInitPosition();
   }
 
-  calculateBats() {
+  private calculateBats(): void {
     this.leftBat.calculate();
     this.rightBat.calculate();
+  }
+
+  private calculateDuration(milliSeconds: number) {
+    setTimeout(() => {
+      if (this.ballRotationDuration < 1) {
+        this.ballRotationDuration += 0.1;
+        this.calculateDuration(milliSeconds);
+      } else {
+        this.ballRotation = null;
+        this.ballRotationDuration = 0;
+      }
+    }, milliSeconds);
   }
 }
