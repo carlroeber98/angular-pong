@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, Input } from "@angular/core";
 import { GameControlService } from "./game-control.service";
 import { Subject, Observable } from "rxjs";
 import { GameState } from "./game-state.enum";
@@ -28,7 +28,6 @@ export class GameCalculationService {
           this.setInitialField();
           break;
         case GameState.RUNNING:
-          console.log("RUNNING");
           if (!this.interval) {
             this.setCalculationInterval();
           }

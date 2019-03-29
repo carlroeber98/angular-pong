@@ -36,17 +36,11 @@ export class GamefieldComponent implements OnInit {
   @ViewChild("leftBat") leftBat;
   @ViewChild("rightBat") rightBat;
 
-  @HostListener("window:resize", ["$event"])
-  onResize(event?) {
-    this.size.height = window.innerHeight * 0.8;
-    this.size.width = window.innerWidth * 0.85;
-
-    this.gameCalculationService.setStopAndInitState();
-  }
-
   constructor(private gameCalculationService: GameCalculationService) {}
 
   ngOnInit() {
+    this.size.height = window.innerHeight * 0.8;
+    this.size.width = window.innerWidth * 0.85;
     this.gameCalculationService.getGameTicker.subscribe(
       ({ gameState, direction }) => {
         switch (gameState) {
@@ -59,7 +53,7 @@ export class GamefieldComponent implements OnInit {
         }
       }
     );
-    this.onResize();
+    this.gameCalculationService.setStopAndInitState();
   }
 
   private calculateMoves(direction: any): void {
@@ -91,8 +85,17 @@ export class GamefieldComponent implements OnInit {
       }
 
       if (this.ball.position.x <= 0) {
+        /*if (
+          this.ball.position.y >
+            (this.size.height - this.size.height * 0.336) / 2 &&
+          this.ball.position.y + this.ball.diameter <
+            this.size.height - (this.size.height - this.size.height * 0.336) / 2
+        ) {*/
         this.goalEvent.emit(true);
         return;
+        /*} else {
+          x = x * -1.5;
+        }*/
       }
       if (this.ball.position.x >= this.size.width - this.ball.diameter) {
         this.goalEvent.emit(false);

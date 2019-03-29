@@ -27,8 +27,8 @@ export class BallComponent implements OnInit {
 
   public setInitPosition(): void {
     this.position = {
-      x: this.gameFieldSize.width / 2 - this.diameter / 2,
-      y: this.gameFieldSize.height / 2 - this.diameter / 2
+      x: this.gameFieldSize.width / 2 - this.diameter / 2 + 5,
+      y: this.gameFieldSize.height / 2 - this.diameter / 2 + 5
     };
   }
 

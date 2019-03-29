@@ -1,17 +1,20 @@
 .field {
   background-color: forestgreen;
-  border: 5px solid black;
-  margin: auto;
-  position: relative;
-  list-style: none;
-  position: relative;
-  border: 5px solid grey;
+  border: 5px solid white;
   background-image: -webkit-linear-gradient(
     0,
     transparent 50%,
     rgba(255, 255, 255, 0.2) 50%
   );
   background-size: 100px;
+}
+
+.field-border {
+  background: forestgreen;
+  border: 35px solid forestgreen;
+  margin: auto;
+  position: relative;
+  list-style: none;
 }
 
 .field:after {
@@ -44,9 +47,12 @@
   border: 5px solid white;
 }
 .left {
-  &.penalty-area,
-  &.penalty-area::before {
+  &.penalty-area {
     border-left: 0px !important;
+    left: 0px;
+  }
+  &.penalty-area::before {
+    border-left: 5px dotted forestgreen;
     left: 0px;
   }
   &.penalty-area:after {
@@ -54,10 +60,13 @@
   }
 }
 .right {
-  &.penalty-area,
-  &.penalty-area::before {
+  &.penalty-area {
     border-right: 0px !important;
-    right: 0px;
+    right: -5px;
+  }
+  &.penalty-area::before {
+    border-right: 5px dotted forestgreen;
+    right: -5px;
   }
   &.penalty-area:after {
     right: 75%;
@@ -73,10 +82,10 @@
 }
 .penalty-area:after {
   position: absolute;
-  height: 25px;
-  width: 25px;
-  top: calc(50% - 25px);
+  height: 15px;
+  width: 15px;
+  top: calc(50% - 7.5px);
   background-color: white;
   content: "";
-  border-radius: 50px;
+  border-radius: 30px;
 }
