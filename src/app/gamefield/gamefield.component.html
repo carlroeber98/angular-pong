@@ -1,52 +1,54 @@
 <div
   class="field-border"
-  [style.width.px]="size.width"
-  [style.height.px]="size.height"
+  [style.width.px]="size?.width"
+  [style.height.px]="size?.height"
   style="text-align:center"
 >
   <div
     class="field"
-    [style.width.px]="size.width"
-    [style.height.px]="size.height"
+    [style.width.px]="size?.width"
+    [style.height.px]="size?.height"
     style="text-align:center"
   >
     <div
       class="penalty-area left"
-      [style.width.px]="size.width * 0.18"
-      [style.height.px]="size.height * 0.6"
-      [style.top.px]="size.height / 2 - size.height * 0.3"
+      [style.width.px]="size?.width * 0.18"
+      [style.height.px]="size?.height * 0.6"
+      [style.top.px]="size?.height / 2 - size?.height * 0.3"
     ></div>
     <app-bat
-      #leftBat
-      [gameFieldSize]="size"
+      [position]="leftBatPosition"
+      [size]="leftBatSize"
       [leftBat]="true"
       [hit]="leftBatHit"
+      (event)="setLeftBatKey($event)"
     ></app-bat>
     <div
       class="center-circle"
-      [style.width.px]="size.height * 0.2"
-      [style.height.px]="size.height * 0.2"
-      [style.top.px]="size.height / 2 - size.height * 0.1"
-      [style.left.px]="size.width / 2 - size.height * 0.1"
+      [style.width.px]="size?.height * 0.2"
+      [style.height.px]="size?.height * 0.2"
+      [style.top.px]="size?.height / 2 - size?.height * 0.1"
+      [style.left.px]="size?.width / 2 - size?.height * 0.1"
     ></div>
     <app-ball
-      #ball
-      [gameFieldSize]="size"
+      [position]="ballPosition"
+      [diameter]="ballDiameter"
       [hitBat]="leftBatHit || rightBatHit"
       [rotation]="ballRotation"
       [rotationDuration]="ballRotationDuration"
     ></app-ball>
     <app-bat
-      #rightBat
-      [gameFieldSize]="size"
+      [position]="rightBatPosition"
+      [size]="rightBatSize"
       [leftBat]="false"
       [hit]="rightBatHit"
+      (event)="setRightBatKey($event)"
     ></app-bat>
     <div
       class="penalty-area right"
-      [style.width.px]="size.width * 0.18"
-      [style.height.px]="size.height * 0.6"
-      [style.top.px]="size.height / 2 - size.height * 0.3"
+      [style.width.px]="size?.width * 0.18"
+      [style.height.px]="size?.height * 0.6"
+      [style.top.px]="size?.height / 2 - size?.height * 0.3"
     ></div>
   </div>
 </div>

@@ -16,14 +16,24 @@ export class GameControlService {
     this.gameHandler = new Subject<GameState>();
   }
 
-  public startGame(): void {
+  public startBatMovement(): void {
     this.interval = setInterval(() => {
-      this.gameHandler.next(GameState.RUNNING);
+      this.gameHandler.next(GameState.BATS_RUNNING);
+    }, 1000 / this.framesPerSecond);
+  }
+
+  public startGame(): void {
+    if (this.interval != null) {
+      clearInterval(this.interval);
+    }
+    this.interval = setInterval(() => {
+      this.gameHandler.next(GameState.GAME_RUNNING);
     }, 1000 / this.framesPerSecond);
   }
 
   public stopGame(): void {
     clearInterval(this.interval);
+    this.interval = null;
     this.gameHandler.next(GameState.STOPPED);
   }
 

@@ -34,8 +34,10 @@ export class AppComponent implements OnInit {
         case GameState.INITIAL:
           this.gameIsRunning = false;
           break;
-        case GameState.RUNNING:
+        case GameState.GAME_RUNNING:
           this.gameIsRunning = true;
+          break;
+        case GameState.BATS_RUNNING:
           break;
         case GameState.STOPPED:
           this.gameIsRunning = false;
@@ -43,7 +45,10 @@ export class AppComponent implements OnInit {
       }
       this.cdr.detectChanges();
     });
-    setTimeout(() => this.gameControlService.setInitialGameField(), 100);
+    setTimeout(() => {
+      this.gameControlService.setInitialGameField();
+      this.gameControlService.startBatMovement();
+    }, 100);
   }
 
   @HostListener("window:keydown", ["$event"])
