@@ -54,8 +54,8 @@ export class GameCalculationService {
         case GameState.INITIAL:
           this.movement = {
             gameSpeed: 0,
-            batSpeed: 220,
-            direction: { x: 0, y: 0 }
+            batSpeed: 400,
+            direction: { x: 10, y: 1 }
           };
           this.leftGoalEvent = false;
           this.rightGoalEvent = false;
@@ -63,8 +63,9 @@ export class GameCalculationService {
           this.rightBatHit = false;
           this.ballRotationDuration = 0;
           this.ballRotation = "";
-          this.calculateRandomMovement();
+          //this.calculateRandomMovement();
           this.calculateInitialGamefield();
+          this.calculateBearing();
           this.gameTicker.next(
             new GameFieldState(
               this.leftBatPosition,
@@ -424,5 +425,70 @@ export class GameCalculationService {
 
   public setRightBatKey(key: KEY_CODE) {
     this.rightBatKey = key;
+  }
+
+  private calculateBearing(): void {
+    console.log(this.movement.direction);
+    const alpha =
+      Math.acos(
+        this.movement.direction.y /
+          Math.sqrt(
+            Math.pow(this.movement.direction.x, 2) +
+              Math.pow(this.movement.direction.y, 2)
+          )
+      ) *
+      (180 / Math.PI);
+    console.log(alpha);
+    const width = this.gameFieldSize.width;
+    const height = this.gameFieldSize.height;
+    const ballX = this.ballPosition.x;
+    const ballY = this.ballPosition.y;
+
+    const hitLeft = {
+      x: 0,
+      y:
+        (-Math.cos((alpha / 180) * Math.PI + Math.PI) /
+          -Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+          Math.PI *
+          (0 - ballX) +
+        ballY
+    };
+    const hitRight = {
+      x: width,
+      y:
+        (-Math.cos((alpha / 180) * Math.PI + Math.PI) /
+          -Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+          Math.PI *
+          (width - ballX) +
+        ballY
+    };
+
+    const hitTop =
+      (height +
+        (Math.cos((alpha / 180) * Math.PI + Math.PI) /
+          Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+          Math.PI *
+          ballX -
+        ballY) /
+      ((Math.cos((alpha / 180) * Math.PI + Math.PI) /
+        Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+        Math.PI);
+
+    const hitBottom =
+      (0 +
+        (Math.cos((alpha / 180) * Math.PI + Math.PI) /
+          Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+          Math.PI *
+          ballX -
+        ballY) /
+      ((Math.cos((alpha / 180) * Math.PI + Math.PI) /
+        Math.sin((alpha / 180) * Math.PI + Math.PI)) *
+        Math.PI);
+
+    const top = ballY < 0 && hitTop >= 0 && hitTop <= width;
+    const right = ballX > 0 && hitRight.y >= 0 && hitRight.y <= height;
+    const bottom = ballY < 0 && hitBottom >= 0 && hitBottom <= width;
+    const left = ballX < 0 && hitLeft.y >= 0 && hitRight.y <= height;
+    console.log(top, right, bottom, left);
   }
 }
