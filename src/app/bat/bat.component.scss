@@ -1,12 +1,16 @@
 .bat {
   position: absolute;
   background-color: white;
-  border-radius: 6px;
+  border-radius: 0px; // Easier for testing
   z-index: 2;
 }
 
 .hit {
   background-color: black !important;
+}
+
+.height-event {
+  background-color: red !important;
 }
 
 // For thr furture

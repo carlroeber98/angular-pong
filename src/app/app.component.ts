@@ -1,5 +1,5 @@
 import { GameControlService } from "./game-control.service";
-import { GameState } from "./game-state.enum";
+import { GameState } from "./enum/game-state.enum";
 import {
   ChangeDetectionStrategy,
   ChangeDetectorRef,
@@ -9,7 +9,7 @@ import {
   OnInit
 } from "@angular/core";
 import { getTView } from "@angular/core/src/render3/state";
-import { KEY_CODE } from "./key-code.enum";
+import { KEY_CODE } from "./enum/key-code.enum";
 
 @Component({
   selector: "app-root",
@@ -38,6 +38,9 @@ export class AppComponent implements OnInit {
           this.gameIsRunning = true;
           break;
         case GameState.BATS_RUNNING:
+          break;
+        case GameState.PAUSED:
+          this.gameIsRunning = false;
           break;
         case GameState.STOPPED:
           this.gameIsRunning = false;
@@ -91,6 +94,7 @@ export class AppComponent implements OnInit {
       this.resetGame();
       return;
     }
+    this.gameControlService.startBatMovement();
   }
 
   resetGame() {

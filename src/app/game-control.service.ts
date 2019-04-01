@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Observable, Subject, TimeInterval } from "rxjs";
 import { GameCalculationService } from "./game-calculation.service";
-import { GameState } from "./game-state.enum";
+import { GameState } from "./enum/game-state.enum";
 
 @Injectable({
   providedIn: "root"
@@ -29,6 +29,12 @@ export class GameControlService {
     this.interval = setInterval(() => {
       this.gameHandler.next(GameState.GAME_RUNNING);
     }, 1000 / this.framesPerSecond);
+  }
+
+  public pauseGame(): void {
+    clearInterval(this.interval);
+    this.interval = null;
+    this.gameHandler.next(GameState.PAUSED);
   }
 
   public stopGame(): void {

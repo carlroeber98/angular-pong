@@ -6,7 +6,7 @@ import {
   Output,
   EventEmitter
 } from "@angular/core";
-import { KEY_CODE } from "../key-code.enum";
+import { KEY_CODE } from "../enum/key-code.enum";
 
 @Component({
   selector: "app-bat",
@@ -18,6 +18,7 @@ export class BatComponent implements OnInit {
 
   @Input() leftBat: boolean;
   @Input() hit: boolean;
+  @Input() heightEvent: boolean;
 
   @Input() position: { x: number; y: number };
   @Input() size: { height: number; width: number };

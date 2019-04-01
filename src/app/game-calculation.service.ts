@@ -1,9 +1,12 @@
-import { Injectable, Input } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { GameControlService } from "./game-control.service";
 import { Subject, Observable } from "rxjs";
-import { GameState } from "./game-state.enum";
-import { KEY_CODE } from "./key-code.enum";
+import { GameState } from "./enum/game-state.enum";
+import { KEY_CODE } from "./enum/key-code.enum";
 import { GameFieldState } from "./game-field-state";
+import { AbstractBall } from "./abstract/abstract-ball";
+import { AbstractBat } from "./abstract/abstract-bat";
+import { AbstractGameField } from "./abstract/abstract-game-field";
 
 @Injectable({
   providedIn: "root"
@@ -23,29 +26,7 @@ export class GameCalculationService {
     };
   };
 
-  // Gamefield values
-  private gameFieldSize: { height: number; width: number };
-
-  // Left bat values
-  private leftBatHit: boolean;
-  private leftBatPosition: { x: number; y: number };
-  private leftBatSize: { height: number; width: number };
-  private leftBatKey: KEY_CODE;
-
-  // Right bat values
-  private rightBatHit: boolean;
-  private rightBatPosition: { x: number; y: number };
-  private rightBatSize: { height: number; width: number };
-  private rightBatKey: KEY_CODE;
-
-  // Ball values
-  private ballRotation: string;
-  private ballRotationDuration: number;
-  private ballPosition: { x: number; y: number };
-  private ballDiameter: number;
-
-  private leftGoalEvent: boolean;
-  private rightGoalEvent: boolean;
+  private gamefield: AbstractGameField;
 
   constructor(private gameControlService: GameControlService) {
     this.gameTicker = new Subject<GameFieldState>();
@@ -54,31 +35,22 @@ export class GameCalculationService {
         case GameState.INITIAL:
           this.movement = {
             gameSpeed: 0,
-            batSpeed: 400,
-            direction: { x: 10, y: 1 }
+            batSpeed: 80,
+            direction: { x: -3, y: 2 }
           };
-          this.leftGoalEvent = false;
-          this.rightGoalEvent = false;
-          this.leftBatHit = false;
-          this.rightBatHit = false;
-          this.ballRotationDuration = 0;
-          this.ballRotation = "";
-          //this.calculateRandomMovement();
-          this.calculateInitialGamefield();
-          this.calculateBearing();
+          this.calculateRandomMovement();
+          this.gamefield = new AbstractGameField({
+            height: window.innerHeight * 0.8,
+            width: window.innerWidth * 0.85
+          });
+          this.gamefield.setInitialGamefield();
           this.gameTicker.next(
+            // how to cast classes ?
             new GameFieldState(
-              this.leftBatPosition,
-              this.rightBatPosition,
-              this.ballPosition,
-              this.ballDiameter,
-              this.gameFieldSize,
-              this.leftBatSize,
-              this.rightBatSize,
-              this.leftBatHit,
-              this.rightBatHit,
-              this.ballRotation,
-              this.ballRotationDuration
+              this.gamefield.leftBat,
+              this.gamefield.rightBat,
+              this.gamefield.ball,
+              this.gamefield
             )
           );
           break;
@@ -96,7 +68,8 @@ export class GameCalculationService {
           }
           break;
         case GameState.PAUSED:
-          // NOT IMPLEMENTED YET
+          clearInterval(this.gameInterval);
+          this.gameInterval = null;
           break;
         case GameState.STOPPED:
           clearInterval(this.batInterval);
@@ -113,19 +86,10 @@ export class GameCalculationService {
       this.calculateGame();
       this.gameTicker.next(
         new GameFieldState(
-          this.leftBatPosition,
-          this.rightBatPosition,
-          this.ballPosition,
-          null,
-          null,
-          this.leftBatSize,
-          this.rightBatSize,
-          this.leftBatHit,
-          this.rightBatHit,
-          this.ballRotation,
-          this.ballRotationDuration,
-          this.leftGoalEvent,
-          this.rightGoalEvent
+          this.gamefield.leftBat,
+          this.gamefield.rightBat,
+          this.gamefield.ball,
+          this.gamefield
         )
       );
     }, 1000 / this.movement.gameSpeed);
@@ -133,9 +97,10 @@ export class GameCalculationService {
 
   private setBatCalculationInterval(): void {
     this.batInterval = setInterval(() => {
-      this.calculateBatPositions();
+      //this.calculateBatPositions();
+      this.gamefield.calculateBatPositions();
       this.gameTicker.next(
-        new GameFieldState(this.leftBatPosition, this.rightBatPosition)
+        new GameFieldState(this.gamefield.leftBat, this.gamefield.rightBat)
       );
     }, 1000 / this.movement.batSpeed);
   }
@@ -144,67 +109,9 @@ export class GameCalculationService {
     return this.gameTicker;
   }
 
-  // Calcualte the inital gamefield:
-  //  GameField width/height in relation to the window width/height
-  //  Bats and ball width/height/diameter in relation to the gameField width/height
-  //  Bat and ball position (x, y) that they are centered and at their correct positions
-  // ATTENTION(!): The border size 5px has to be added to the calcualted positions
-  private calculateInitialGamefield(): void {
-    this.gameFieldSize = {
-      height: window.innerHeight * 0.8,
-      width: window.innerWidth * 0.85
-    };
-
-    this.leftBatSize = { height: 150, width: 10 };
-    this.leftBatPosition = {
-      x: 20 + 5,
-      y: this.gameFieldSize.height / 2 - this.leftBatSize.height / 2 + 5
-    };
-
-    this.rightBatSize = { height: 150, width: 10 };
-    this.rightBatPosition = {
-      x: this.gameFieldSize.width - 20 - this.rightBatSize.width + 5,
-      y: this.gameFieldSize.height / 2 - this.rightBatSize.height / 2 + 5
-    };
-
-    this.ballDiameter = 25;
-    this.ballPosition = {
-      x: this.gameFieldSize.width / 2 - this.ballDiameter / 2 + 5,
-      y: this.gameFieldSize.height / 2 - this.ballDiameter / 2 + 5
-    };
-  }
-
-  private calculateBatPositions(): void {
-    if (
-      this.leftBatKey &&
-      this.leftBatPosition.y + (this.leftBatKey === KEY_CODE.W_KEY ? -1 : 1) >=
-        5 &&
-      this.leftBatPosition.y + (this.leftBatKey === KEY_CODE.W_KEY ? -1 : 1) <=
-        this.gameFieldSize.height - this.leftBatSize.height + 5
-    ) {
-      this.leftBatPosition.y += this.leftBatKey === KEY_CODE.W_KEY ? -1 : 1;
-    } else if (this.leftBatKey) {
-      this.leftBatKey = null;
-    }
-    if (
-      this.rightBatKey &&
-      this.rightBatPosition.y +
-        (this.rightBatKey === KEY_CODE.UP_ARROW ? -1 : 1) >=
-        5 &&
-      this.rightBatPosition.y +
-        (this.rightBatKey === KEY_CODE.UP_ARROW ? -1 : 1) <=
-        this.gameFieldSize.height - this.rightBatSize.height + 5
-    ) {
-      this.rightBatPosition.y +=
-        this.rightBatKey === KEY_CODE.UP_ARROW ? -1 : 1;
-    } else {
-      this.rightBatKey = null;
-    }
-  }
-
   // Calculate a random movement:
   //  GameSpeed should be between 35 (slow) and 70 (very fast)
-  //  BatSpeed should be between 180 (slow) and 250 (fast)
+  //  BatSpeed should be between 100 (slow) and 180 (fast)
   //  X should be between -4 and 4
   //  Y should be between -4 and 4, but at the start a higher value is better
   private calculateRandomMovement() {
@@ -220,7 +127,7 @@ export class GameCalculationService {
       }
       this.movement.direction.x = this.movement.direction.y * randomNumber;
     }
-    this.movement.gameSpeed = Math.floor(Math.random() * 60) + 50;
+    this.movement.gameSpeed = Math.floor(Math.random() * 80) + 50;
   }
 
   private calculateGame(): void {
@@ -235,105 +142,79 @@ export class GameCalculationService {
       loopEntries = loopEntries * 2;
     }
 
-    let topBottomEvent = false;
-    let leftRightBatEvent = false;
+    let topBottomHitEvent = false;
+    let leftRightHitEvent = false;
     let plusTwirlEvent = false;
     let minusTwirlEvent = false;
     for (let l = 0; l < loopEntries; l++) {
-      this.ballPosition.x += x;
-      this.ballPosition.y += y;
+      this.gamefield.ball.position.x += x;
+      this.gamefield.ball.position.y += y;
 
-      if (this.checkHitTopOrBottom()) {
-        this.ballRotation = x > 0 ? "clockwise" : "counter-clockwise";
-        this.ballRotationDuration = 0.7;
-        this.calculateDuration(3000);
+      if (this.gamefield.isTopOrBottomEvent()) {
         y = y * -1;
-        topBottomEvent = true;
+        this.gamefield.ball.setRoationAnimation(
+          x > 0 ? "clockwise" : "counter-clockwise",
+          0.7
+        );
+        topBottomHitEvent = true;
       }
 
-      if (this.ballPosition.x <= 5) {
+      if (
+        this.gamefield.ball.position.x <= 5 ||
+        this.gamefield.ball.position.x >=
+          this.gamefield.size.width - this.gamefield.ball.diameter + 5
+      ) {
         if (
-          this.leftBatSize.height <= this.ballDiameter ||
-          (this.ballPosition.y >
-            (this.gameFieldSize.height - this.gameFieldSize.height * 0.336) /
-              2 &&
-            this.ballPosition.y + this.ballDiameter <
-              this.gameFieldSize.height -
-                (this.gameFieldSize.height -
-                  this.gameFieldSize.height * 0.336) /
-                  2)
+          this.gamefield.isLeftGoalEvent() ||
+          this.gamefield.isRightGoalEvent()
         ) {
-          this.leftGoalEvent = true;
-          return;
+          break;
         } else {
           x = x * -1;
-          this.leftBatSize.height -= 20;
-          this.leftBatPosition.y += 10;
-          leftRightBatEvent = true;
-        }
-      }
-      if (this.ballPosition.x >= this.gameFieldSize.width - this.ballDiameter) {
-        if (
-          this.rightBatSize.height <= this.ballDiameter ||
-          (this.ballPosition.y >
-            (this.gameFieldSize.height - this.gameFieldSize.height * 0.336) /
-              2 &&
-            this.ballPosition.y + this.ballDiameter <
-              this.gameFieldSize.height -
-                (this.gameFieldSize.height -
-                  this.gameFieldSize.height * 0.336) /
-                  2)
-        ) {
-          this.rightGoalEvent = true;
-          return;
-        } else {
-          x = x * -1;
-          this.rightBatSize.height -= 20;
-          this.rightBatPosition.y += 10;
-          leftRightBatEvent = true;
+          leftRightHitEvent = true;
         }
       }
 
-      const leftBatHit = this.checkHitLeftBat();
-      const rightBatHit = this.checkHitRightBat();
-      const leftBatTopBottomHit = this.checkHitTopOrBottomLeftBat();
-      const rightBatTopBottomHit = this.checkHitTopOrBottomRightBat();
-      if (leftBatTopBottomHit || rightBatTopBottomHit) {
+      const leftBatHit = this.gamefield.isLeftBatHitEvent();
+      const rightBatHit = this.gamefield.isRightBatHitEvent();
+
+      if (leftBatHit.topBottomHitEvent || rightBatHit.topBottomHitEvent) {
+        //this.gameControlService.pauseGame();
         y = y * -1;
-        topBottomEvent = true;
-      }
-      if (leftBatHit || rightBatHit) {
+        topBottomHitEvent = true;
+      } else if (
+        leftBatHit.leftRightHitEvent ||
+        rightBatHit.leftRightHitEvent
+      ) {
+        //this.gameControlService.pauseGame();
         x = x * -1;
-        leftRightBatEvent = true;
-        if (leftBatHit || rightBatHit) {
-          if (
-            (this.leftBatKey != null && this.leftBatKey === KEY_CODE.W_KEY) ||
-            (this.rightBatKey != null && this.rightBatKey === KEY_CODE.UP_ARROW)
-          ) {
-            minusTwirlEvent = true;
-            this.ballRotation = "clockwise";
-            this.ballRotationDuration = 0.2;
-            this.calculateDuration(5000);
-          } else if (
-            (this.leftBatKey != null && this.leftBatKey === KEY_CODE.S_KEY) ||
-            (this.rightBatKey != null &&
-              this.rightBatKey === KEY_CODE.DOWN_ARROW)
-          ) {
-            plusTwirlEvent = true;
-            this.ballRotation = "counter-clockwise";
-            this.ballRotationDuration = 0.2;
-            this.calculateDuration(5000);
-          }
-        } else {
-          this.ballRotationDuration = 0.6;
+        leftRightHitEvent = true;
+        if (
+          (leftBatHit.leftRightHitEvent &&
+            this.gamefield.leftBat.isUpKeyPressed()) ||
+          (rightBatHit.leftRightHitEvent &&
+            this.gamefield.rightBat.isUpKeyPressed())
+        ) {
+          minusTwirlEvent = true;
+          this.gamefield.ball.setRoationAnimation("clockwise", 0.2);
+        } else if (
+          (leftBatHit.leftRightHitEvent &&
+            this.gamefield.leftBat.isDownKeyPressed()) ||
+          (rightBatHit.leftRightHitEvent &&
+            this.gamefield.rightBat.isDownKeyPressed())
+        ) {
+          plusTwirlEvent = true;
+          this.gamefield.ball.setRoationAnimation("counter-clockwise", 0.2);
         }
+      } else {
+        this.gamefield.ball.rotationDuration = 0.6;
       }
     }
 
-    if (topBottomEvent) {
+    if (topBottomHitEvent) {
       this.movement.direction.y = this.movement.direction.y * -1;
     }
-    if (leftRightBatEvent) {
+    if (leftRightHitEvent) {
       this.movement.direction.x = this.movement.direction.x * -1;
     }
     if (plusTwirlEvent) {
@@ -344,87 +225,13 @@ export class GameCalculationService {
     }
   }
 
-  private checkHitTopOrBottom(): boolean {
-    if (
-      this.ballPosition.y <= 0 ||
-      this.ballPosition.y >= this.gameFieldSize.height - this.ballDiameter
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  private checkHitLeftBat(): boolean {
-    if (
-      this.ballPosition.x <= this.leftBatPosition.x + this.leftBatSize.width &&
-      this.ballPosition.y >= this.leftBatPosition.y &&
-      this.ballPosition.y + this.ballDiameter <=
-        this.leftBatPosition.y + this.leftBatSize.height
-    ) {
-      this.leftBatHit = true;
-      setTimeout(() => {
-        this.leftBatHit = false;
-      }, 200);
-      return true;
-    }
-    return false;
-  }
-
-  private checkHitTopOrBottomLeftBat(): boolean {
-    // TODO: correct this
-    if (
-      this.ballPosition.x <= 30 &&
-      this.ballPosition.x >= 10 &&
-      this.ballPosition.y >= this.leftBatPosition.y &&
-      this.ballPosition.y + this.ballDiameter <=
-        this.leftBatPosition.y + this.leftBatSize.height
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  private checkHitTopOrBottomRightBat(): boolean {
-    return false; // TODO:
-  }
-
-  private checkHitRightBat(): boolean {
-    if (
-      this.ballPosition.x + this.ballDiameter >=
-        this.gameFieldSize.width -
-          (this.gameFieldSize.width - this.rightBatPosition.x) &&
-      this.ballPosition.y >= this.rightBatPosition.y &&
-      this.ballPosition.y + this.ballDiameter <=
-        this.rightBatPosition.y + this.rightBatSize.height
-    ) {
-      this.rightBatHit = true;
-      setTimeout(() => {
-        this.rightBatHit = false;
-      }, 200);
-      return true;
-    }
-    return false;
-  }
-
-  private calculateDuration(milliSeconds: number) {
-    setTimeout(() => {
-      if (this.ballRotationDuration < 2) {
-        this.ballRotationDuration += 0.1;
-        this.calculateDuration(milliSeconds);
-      } else {
-        this.ballRotation = null;
-        this.ballRotationDuration = 0;
-      }
-    }, milliSeconds);
-  }
-
   // Setting the bat keys from the gamefield event callback
   public setLeftBatKey(key: KEY_CODE) {
-    this.leftBatKey = key;
+    this.gamefield.leftBat.key = key;
   }
 
   public setRightBatKey(key: KEY_CODE) {
-    this.rightBatKey = key;
+    this.gamefield.rightBat.key = key;
   }
 
   private calculateBearing(): void {
@@ -438,11 +245,10 @@ export class GameCalculationService {
           )
       ) *
       (180 / Math.PI);
-    console.log(alpha);
-    const width = this.gameFieldSize.width;
-    const height = this.gameFieldSize.height;
-    const ballX = this.ballPosition.x;
-    const ballY = this.ballPosition.y;
+    const width = this.gamefield.size.width;
+    const height = this.gamefield.size.height;
+    const ballX = this.gamefield.ball.position.x;
+    const ballY = this.gamefield.ball.position.y;
 
     const hitLeft = {
       x: 0,
@@ -490,5 +296,9 @@ export class GameCalculationService {
     const bottom = ballY < 0 && hitBottom >= 0 && hitBottom <= width;
     const left = ballX < 0 && hitLeft.y >= 0 && hitRight.y <= height;
     console.log(top, right, bottom, left);
+
+    if (!bottom) {
+    } else {
+    }
   }
 }

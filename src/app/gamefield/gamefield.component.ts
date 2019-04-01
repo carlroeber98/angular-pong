@@ -1,19 +1,7 @@
 import { GameControlService } from "./../game-control.service";
-import {
-  Component,
-  OnInit,
-  HostListener,
-  Input,
-  Output,
-  EventEmitter,
-  ViewChild
-} from "@angular/core";
-import { getTView } from "@angular/core/src/render3/state";
-import { BallComponent } from "../ball/ball.component";
-import { BatComponent } from "../bat/bat.component";
+import { Component, OnInit, Output, EventEmitter } from "@angular/core";
 import { GameCalculationService } from "../game-calculation.service";
-import { GameState } from "../game-state.enum";
-import { KEY_CODE } from "../key-code.enum";
+import { KEY_CODE } from "../enum/key-code.enum";
 
 @Component({
   selector: "app-gamefield",
@@ -26,11 +14,13 @@ export class GamefieldComponent implements OnInit {
 
   // Left bat values
   leftBatHit: boolean;
+  leftBatHeightEvent: boolean;
   leftBatPosition: { x: number; y: number };
   leftBatSize: { height: number; width: number };
 
   // Right bat values
   rightBatHit: boolean;
+  rightBatHeightEvent: boolean;
   rightBatPosition: { x: number; y: number };
   rightBatSize: { height: number; width: number };
 
@@ -49,44 +39,62 @@ export class GamefieldComponent implements OnInit {
       if (!gameFieldState) {
         return;
       }
-      if (gameFieldState.getGameFieldSize()) {
-        this.size = gameFieldState.getGameFieldSize();
+
+      if (gameFieldState.leftBat) {
+        if (gameFieldState.leftBat.position) {
+          this.leftBatPosition = gameFieldState.leftBat.position;
+        }
+        if (gameFieldState.leftBat.size) {
+          this.leftBatSize = gameFieldState.leftBat.size;
+        }
+        if (gameFieldState.leftBat.hitEvent != null) {
+          this.leftBatHit = gameFieldState.leftBat.hitEvent;
+        }
+        if (gameFieldState.leftBat.heightEvent != null) {
+          this.leftBatHeightEvent = gameFieldState.leftBat.heightEvent;
+        }
       }
-      if (gameFieldState.getLeftBatHit() != null) {
-        this.leftBatHit = gameFieldState.getLeftBatHit();
+
+      if (gameFieldState.rightBat) {
+        if (gameFieldState.rightBat.position) {
+          this.rightBatPosition = gameFieldState.rightBat.position;
+        }
+        if (gameFieldState.rightBat.size) {
+          this.rightBatSize = gameFieldState.rightBat.size;
+        }
+        if (gameFieldState.rightBat.hitEvent != null) {
+          this.rightBatHit = gameFieldState.rightBat.hitEvent;
+        }
+        if (gameFieldState.rightBat.heightEvent != null) {
+          this.rightBatHeightEvent = gameFieldState.rightBat.heightEvent;
+        }
       }
-      if (gameFieldState.getLeftBatPosition()) {
-        this.leftBatPosition = gameFieldState.getLeftBatPosition();
+
+      if (gameFieldState.ball) {
+        if (gameFieldState.ball.diameter) {
+          this.ballDiameter = gameFieldState.ball.diameter;
+        }
+        if (gameFieldState.ball.position) {
+          this.ballPosition = gameFieldState.ball.position;
+        }
+        if (gameFieldState.ball.rotation != null) {
+          this.ballRotation = gameFieldState.ball.rotation;
+        }
+        if (gameFieldState.ball.rotationDuration) {
+          this.ballRotationDuration = gameFieldState.ball.rotationDuration;
+        }
       }
-      if (gameFieldState.getLeftBatSize()) {
-        this.leftBatSize = gameFieldState.getLeftBatSize();
-      }
-      if (gameFieldState.getRightBatHit() != null) {
-        this.rightBatHit = gameFieldState.getRightBatHit();
-      }
-      if (gameFieldState.getRightBatPosition()) {
-        this.rightBatPosition = gameFieldState.getRightBatPosition();
-      }
-      if (gameFieldState.getRightBatSize()) {
-        this.rightBatSize = gameFieldState.getRightBatSize();
-      }
-      if (gameFieldState.getBallRotation() != null) {
-        this.ballRotation = gameFieldState.getBallRotation();
-      }
-      if (gameFieldState.getBallRotationDuration()) {
-        this.ballRotationDuration = gameFieldState.getBallRotationDuration();
-      }
-      if (gameFieldState.getBallPosition()) {
-        this.ballPosition = gameFieldState.getBallPosition();
-      }
-      if (gameFieldState.getBallDiameter()) {
-        this.ballDiameter = gameFieldState.getBallDiameter();
-      }
-      if (gameFieldState.getLeftGoalEvent()) {
-        this.goalEvent.emit(true);
-      }
-      if (gameFieldState.getRightGoalEvent()) {
-        this.goalEvent.emit(false);
+
+      if (gameFieldState.gameField) {
+        if (gameFieldState.gameField.size) {
+          this.size = gameFieldState.gameField.size;
+        }
+        if (gameFieldState.gameField.leftGoalEvent) {
+          this.goalEvent.emit(true);
+        }
+        if (gameFieldState.gameField.rightGoalEvent) {
+          this.goalEvent.emit(false);
+        }
       }
     });
   }
