@@ -1,12 +1,10 @@
 import { Injectable } from "@angular/core";
 import { GameControlService } from "./game-control.service";
 import { Subject, Observable } from "rxjs";
-import { GameState } from "./enum/game-state.enum";
-import { KEY_CODE } from "./enum/key-code.enum";
-import { GameFieldState } from "./game-field-state";
-import { AbstractBall } from "./abstract/abstract-ball";
-import { AbstractBat } from "./abstract/abstract-bat";
-import { AbstractGameField } from "./abstract/abstract-game-field";
+import { GameState } from "../enum/game-state.enum";
+import { KEY_CODE } from "../enum/key-code.enum";
+import { GameFieldState } from "../model/game-field-state";
+import { AbstractGameField } from "../abstract/abstract-game-field";
 
 @Injectable({
   providedIn: "root"
@@ -35,10 +33,12 @@ export class GameCalculationService {
         case GameState.INITIAL:
           this.movement = {
             gameSpeed: 0,
-            batSpeed: 80,
-            direction: { x: -3, y: 2 }
+            batSpeed: 0,
+            direction: { x: 0, y: 0 }
           };
+
           this.calculateRandomMovement();
+          this.movement.batSpeed = this.movement.gameSpeed - 20;
           this.gamefield = new AbstractGameField({
             height: window.innerHeight * 0.8,
             width: window.innerWidth * 0.85
@@ -127,7 +127,7 @@ export class GameCalculationService {
       }
       this.movement.direction.x = this.movement.direction.y * randomNumber;
     }
-    this.movement.gameSpeed = Math.floor(Math.random() * 80) + 50;
+    this.movement.gameSpeed = Math.floor(Math.random() * 75) + 60;
   }
 
   private calculateGame(): void {
@@ -151,6 +151,7 @@ export class GameCalculationService {
       this.gamefield.ball.position.y += y;
 
       if (this.gamefield.isTopOrBottomEvent()) {
+        //this.gameControlService.pauseGame();
         y = y * -1;
         this.gamefield.ball.setRoationAnimation(
           x > 0 ? "clockwise" : "counter-clockwise",
@@ -160,24 +161,19 @@ export class GameCalculationService {
       }
 
       if (
-        this.gamefield.ball.position.x <= 5 ||
-        this.gamefield.ball.position.x >=
-          this.gamefield.size.width - this.gamefield.ball.diameter + 5
+        (this.gamefield.ball.position.x <= 5 &&
+          !this.gamefield.isLeftGoalEvent()) ||
+        (this.gamefield.ball.position.x >=
+          this.gamefield.size.width - this.gamefield.ball.diameter + 5 &&
+          !this.gamefield.isRightGoalEvent())
       ) {
-        if (
-          this.gamefield.isLeftGoalEvent() ||
-          this.gamefield.isRightGoalEvent()
-        ) {
-          break;
-        } else {
-          x = x * -1;
-          leftRightHitEvent = true;
-        }
+        //this.gameControlService.pauseGame();
+        x = x * -1;
+        leftRightHitEvent = true;
       }
 
       const leftBatHit = this.gamefield.isLeftBatHitEvent();
       const rightBatHit = this.gamefield.isRightBatHitEvent();
-
       if (leftBatHit.topBottomHitEvent || rightBatHit.topBottomHitEvent) {
         //this.gameControlService.pauseGame();
         y = y * -1;
@@ -232,73 +228,5 @@ export class GameCalculationService {
 
   public setRightBatKey(key: KEY_CODE) {
     this.gamefield.rightBat.key = key;
-  }
-
-  private calculateBearing(): void {
-    console.log(this.movement.direction);
-    const alpha =
-      Math.acos(
-        this.movement.direction.y /
-          Math.sqrt(
-            Math.pow(this.movement.direction.x, 2) +
-              Math.pow(this.movement.direction.y, 2)
-          )
-      ) *
-      (180 / Math.PI);
-    const width = this.gamefield.size.width;
-    const height = this.gamefield.size.height;
-    const ballX = this.gamefield.ball.position.x;
-    const ballY = this.gamefield.ball.position.y;
-
-    const hitLeft = {
-      x: 0,
-      y:
-        (-Math.cos((alpha / 180) * Math.PI + Math.PI) /
-          -Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-          Math.PI *
-          (0 - ballX) +
-        ballY
-    };
-    const hitRight = {
-      x: width,
-      y:
-        (-Math.cos((alpha / 180) * Math.PI + Math.PI) /
-          -Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-          Math.PI *
-          (width - ballX) +
-        ballY
-    };
-
-    const hitTop =
-      (height +
-        (Math.cos((alpha / 180) * Math.PI + Math.PI) /
-          Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-          Math.PI *
-          ballX -
-        ballY) /
-      ((Math.cos((alpha / 180) * Math.PI + Math.PI) /
-        Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-        Math.PI);
-
-    const hitBottom =
-      (0 +
-        (Math.cos((alpha / 180) * Math.PI + Math.PI) /
-          Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-          Math.PI *
-          ballX -
-        ballY) /
-      ((Math.cos((alpha / 180) * Math.PI + Math.PI) /
-        Math.sin((alpha / 180) * Math.PI + Math.PI)) *
-        Math.PI);
-
-    const top = ballY < 0 && hitTop >= 0 && hitTop <= width;
-    const right = ballX > 0 && hitRight.y >= 0 && hitRight.y <= height;
-    const bottom = ballY < 0 && hitBottom >= 0 && hitBottom <= width;
-    const left = ballX < 0 && hitLeft.y >= 0 && hitRight.y <= height;
-    console.log(top, right, bottom, left);
-
-    if (!bottom) {
-    } else {
-    }
   }
 }

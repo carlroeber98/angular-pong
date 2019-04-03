@@ -1,6 +1,6 @@
-import { GameControlService } from "./../game-control.service";
+import { GameControlService } from "../services/game-control.service";
 import { Component, OnInit, Output, EventEmitter } from "@angular/core";
-import { GameCalculationService } from "../game-calculation.service";
+import { GameCalculationService } from "../services/game-calculation.service";
 import { KEY_CODE } from "../enum/key-code.enum";
 
 @Component({

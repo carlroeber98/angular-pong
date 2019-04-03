@@ -1,6 +1,6 @@
-import { Bat } from "./model/bat";
-import { Ball } from "./model/ball";
-import { GameField } from "./model/game-field";
+import { Bat } from "./bat";
+import { Ball } from "./ball";
+import { GameField } from "./game-field";
 
 export class GameFieldState {
   constructor(

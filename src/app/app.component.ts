@@ -1,4 +1,4 @@
-import { GameControlService } from "./game-control.service";
+import { GameControlService } from "./services/game-control.service";
 import { GameState } from "./enum/game-state.enum";
 import {
   ChangeDetectionStrategy,

@@ -47,8 +47,14 @@ export class AbstractGameField extends GameField {
 
   public isTopOrBottomEvent(): boolean {
     if (
-      this.ball.position.y <= 5 ||
-      this.ball.position.y >= this.size.height - this.ball.diameter + 5
+      this.ball.upperLineFunction(
+        this.ball.inversUpperLineFunction(-this.ball.diameter / 2 + 5)
+      ) ||
+      this.ball.underLineFunction(
+        this.ball.inversUnderLineFunction(
+          this.size.height - this.ball.diameter / 2 + 5
+        )
+      )
     ) {
       return true;
     }
@@ -58,9 +64,9 @@ export class AbstractGameField extends GameField {
   public isLeftGoalEvent(): boolean {
     if (
       this.leftBat.size.height <= this.ball.diameter * 2 ||
-      (this.ball.position.y >
+      (this.ball.upperLineFunction(-this.ball.diameter / 2 + 5) >
         this.size.height / 2 + 10 - this.size.height * 0.21 &&
-        this.ball.position.y + this.ball.diameter <
+        this.ball.upperLineFunction(-this.ball.diameter / 2 + 5) <
           this.size.height / 2 +
             10 -
             this.size.height * 0.21 +
@@ -68,7 +74,7 @@ export class AbstractGameField extends GameField {
     ) {
       this.leftGoalEvent = true;
       return true;
-    } else if (this.ball.position.x <= 5) {
+    } else {
       this.leftBat.onHeightEvent();
       return false;
     }
@@ -77,9 +83,13 @@ export class AbstractGameField extends GameField {
   public isRightGoalEvent() {
     if (
       this.rightBat.size.height <= this.ball.diameter * 2 ||
-      (this.ball.position.y >
+      (this.ball.upperLineFunction(
+        this.size.width - this.ball.diameter / 2 + 5
+      ) >
         this.size.height / 2 + 10 - this.size.height * 0.21 &&
-        this.ball.position.y + this.ball.diameter <
+        this.ball.upperLineFunction(
+          this.size.width - this.ball.diameter / 2 + 5
+        ) <
           this.size.height / 2 +
             10 -
             this.size.height * 0.21 +
@@ -87,10 +97,7 @@ export class AbstractGameField extends GameField {
     ) {
       this.rightGoalEvent = true;
       return true;
-    } else if (
-      this.ball.position.x >=
-      this.size.width - this.ball.diameter + 5
-    ) {
+    } else {
       this.rightBat.onHeightEvent();
       return false;
     }
@@ -98,31 +105,55 @@ export class AbstractGameField extends GameField {
 
   public isLeftBatHitEvent(): any {
     if (
-      (Math.round(this.ball.position.x) ===
-        this.leftBat.position.x + this.leftBat.size.width ||
-        Math.round(this.ball.position.x + this.ball.diameter) ===
-          this.leftBat.position.x) &&
-      this.ball.position.y >= this.leftBat.position.y &&
-      this.ball.position.y + this.ball.diameter <=
-        this.leftBat.position.y + this.leftBat.size.height
+      (this.ball.upperLineFunction(
+        this.leftBat.position.x +
+          this.leftBat.size.width -
+          this.ball.diameter / 2
+      ) >= this.leftBat.position.y ||
+        this.ball.upperLineFunction(
+          this.leftBat.position.x - this.ball.diameter / 2
+        ) >= this.leftBat.position.y) &&
+      (this.ball.upperLineFunction(
+        this.leftBat.position.x +
+          this.leftBat.size.width -
+          this.ball.diameter / 2
+      ) <=
+        this.leftBat.position.y + this.leftBat.size.height ||
+        this.ball.upperLineFunction(
+          this.leftBat.position.x - this.ball.diameter / 2
+        ) <=
+          this.leftBat.position.y + this.leftBat.size.height)
     ) {
       this.leftBat.onHitEvent();
       return { leftRightHitEvent: true, topBottomHitEvent: false };
     }
     if (
-      this.ball.position.x + this.ball.diameter / 2 >=
-        this.leftBat.position.x &&
-      this.ball.position.x + this.ball.diameter / 2 <=
-        this.leftBat.position.x + this.leftBat.size.width &&
-      ((this.ball.position.y + this.ball.diameter >= this.leftBat.position.y &&
-        this.ball.position.y + this.ball.diameter <=
-          this.leftBat.position.y + this.ball.diameter / 2) ||
-        (this.ball.position.y >=
+      (this.ball.inversUnderLineFunction(
+        this.leftBat.position.y - this.ball.diameter / 2 + 5
+      ) >=
+        this.leftBat.position.x - this.ball.diameter / 2 &&
+        this.ball.inversUnderLineFunction(
+          this.leftBat.position.y - this.ball.diameter / 2 + 5
+        ) <=
+          this.leftBat.position.x +
+            this.leftBat.size.width -
+            this.ball.diameter / 2) ||
+      (this.ball.upperLineFunction(
+        this.leftBat.position.y +
+          this.leftBat.size.height -
+          this.ball.diameter / 2 +
+          5
+      ) >=
+        this.leftBat.position.x - this.ball.diameter / 2 &&
+        this.ball.upperLineFunction(
           this.leftBat.position.y +
             this.leftBat.size.height -
-            this.ball.diameter / 2 &&
-          this.ball.position.y <=
-            this.leftBat.position.y + this.leftBat.size.height))
+            this.ball.diameter / 2 +
+            5
+        ) <=
+          this.leftBat.position.x +
+            this.leftBat.size.width -
+            this.ball.diameter / 2)
     ) {
       return { leftRightHitEvent: false, topBottomHitEvent: true };
     }
@@ -131,15 +162,57 @@ export class AbstractGameField extends GameField {
 
   public isRightBatHitEvent(): any {
     if (
-      this.ball.position.x + this.ball.diameter >=
-        this.size.width - (this.size.width - this.rightBat.position.x) &&
-      this.ball.position.y >= this.rightBat.position.y &&
-      this.ball.position.y + this.ball.diameter <=
-        this.rightBat.position.y + this.rightBat.size.height
+      (this.ball.upperLineFunction(
+        this.rightBat.position.x +
+          this.rightBat.size.width -
+          this.ball.diameter / 2
+      ) >= this.rightBat.position.y ||
+        this.ball.upperLineFunction(
+          this.rightBat.position.x - this.ball.diameter / 2
+        ) >= this.rightBat.position.y) &&
+      (this.ball.upperLineFunction(
+        this.rightBat.position.x +
+          this.rightBat.size.width -
+          this.ball.diameter / 2
+      ) <=
+        this.rightBat.position.y + this.rightBat.size.height ||
+        this.ball.upperLineFunction(
+          this.rightBat.position.x - this.ball.diameter / 2
+        ) <=
+          this.rightBat.position.y + this.rightBat.size.height)
     ) {
       this.rightBat.onHitEvent();
-      x;
       return { leftRightHitEvent: true, topBottomHitEvent: false };
+    }
+    if (
+      (this.ball.inversUnderLineFunction(
+        this.rightBat.position.y - this.ball.diameter / 2 + 5
+      ) >=
+        this.rightBat.position.x - this.ball.diameter / 2 &&
+        this.ball.inversUnderLineFunction(
+          this.rightBat.position.y - this.ball.diameter / 2 + 5
+        ) <=
+          this.rightBat.position.x +
+            this.rightBat.size.width -
+            this.ball.diameter / 2) ||
+      (this.ball.upperLineFunction(
+        this.rightBat.position.y +
+          this.rightBat.size.height -
+          this.ball.diameter / 2 +
+          5
+      ) >=
+        this.rightBat.position.x - this.ball.diameter / 2 &&
+        this.ball.upperLineFunction(
+          this.rightBat.position.y +
+            this.rightBat.size.height -
+            this.ball.diameter / 2 +
+            5
+        ) <=
+          this.rightBat.position.x +
+            this.rightBat.size.width -
+            this.ball.diameter / 2)
+    ) {
+      return { leftRightHitEvent: false, topBottomHitEvent: true };
     }
     return { leftRightHitEvent: false, topBottomHitEvent: false };
   }
