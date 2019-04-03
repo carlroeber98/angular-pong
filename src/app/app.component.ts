@@ -5,7 +5,6 @@ import {
   ChangeDetectorRef,
   Component,
   HostListener,
-  ViewChild,
   OnInit
 } from "@angular/core";
 import { getTView } from "@angular/core/src/render3/state";
@@ -22,6 +21,9 @@ export class AppComponent implements OnInit {
   rightPlayerPoints = 0;
 
   gameIsRunning: boolean;
+  gameIsPaused: boolean;
+
+  pauseButtonText = "Pause";
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -36,11 +38,6 @@ export class AppComponent implements OnInit {
           break;
         case GameState.GAME_RUNNING:
           this.gameIsRunning = true;
-          break;
-        case GameState.BATS_RUNNING:
-          break;
-        case GameState.PAUSED:
-          this.gameIsRunning = false;
           break;
         case GameState.STOPPED:
           this.gameIsRunning = false;
@@ -61,16 +58,31 @@ export class AppComponent implements OnInit {
         this.gameControlService.stopGame();
         this.resetField();
       } else {
-        this.startGame();
+        this.onStartGameGameButtonClicked();
       }
     }
   }
 
-  startGame() {
+  onStartGameGameButtonClicked(): void {
     this.gameControlService.startGame();
   }
 
-  goalEvent(leftGoal: boolean) {
+  onPauseGameButtonClicked(): void {
+    if (!this.gameIsRunning) {
+      return;
+    }
+    if (!this.gameIsPaused) {
+      this.gameIsPaused = true;
+      this.pauseButtonText = "Forsetzen";
+      this.gameControlService.pauseGame();
+    } else {
+      this.gameIsPaused = false;
+      this.pauseButtonText = "Pause";
+      this.gameControlService.startGame();
+    }
+  }
+
+  goalEvent(leftGoal: boolean): void {
     this.gameControlService.stopGame();
     if (leftGoal) {
       this.rightPlayerPoints++;
@@ -80,7 +92,7 @@ export class AppComponent implements OnInit {
     this.resetField();
   }
 
-  resetField() {
+  resetField(): void {
     this.gameControlService.setInitialGameField();
 
     if (this.leftPlayerPoints === 6) {
@@ -97,7 +109,7 @@ export class AppComponent implements OnInit {
     this.gameControlService.startBatMovement();
   }
 
-  resetGame() {
+  resetGame(): void {
     this.gameControlService.stopGame();
     this.leftPlayerPoints = 0;
     this.rightPlayerPoints = 0;

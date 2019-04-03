@@ -6,11 +6,18 @@
 ></app-points>
 <div style="text-align:center; margin-top: 20px">
   <button
-    (click)="startGame()"
+    (click)="onStartGameGameButtonClicked()"
     [disabled]="gameIsRunning"
     style="margin-right: 20px"
   >
     Starten
+  </button>
+  <button
+    (click)="onPauseGameButtonClicked()"
+    [disabled]="!gameIsRunning"
+    style="margin-right: 20px"
+  >
+    {{ pauseButtonText }}
   </button>
   <button (click)="resetGame()">Zurücksetzen</button>
 </div>

@@ -12,7 +12,7 @@ export class AbstractBat extends Bat {
   ) {
     super(hitEvent, heightEvent, position, size);
   }
-  // THIS CAN BE BEAUTIFIED
+
   public calculatePosition(gamefieldHeight: number): void {
     if (this.key) {
       for (let i = 0; i < 5; i++) {
@@ -37,8 +37,6 @@ export class AbstractBat extends Bat {
           break;
         }
       }
-    } else if (this.key) {
-      this.key = null;
     }
   }
 
