@@ -5,12 +5,14 @@ import { GameState } from "../enum/game-state.enum";
 import { KEY_CODE } from "../enum/key-code.enum";
 import { GameFieldState } from "../model/game-field-state";
 import { AbstractGameField } from "../abstract/abstract-game-field";
+import { ReplayService } from "./replay.service";
 
 @Injectable({
   providedIn: "root"
 })
 export class GameCalculationService {
   private gameTicker: Subject<GameFieldState>;
+  private replayService: ReplayService;
 
   private gameInterval: any;
   private batInterval: any;
@@ -36,13 +38,13 @@ export class GameCalculationService {
             batSpeed: 0,
             direction: { x: 0, y: 0 }
           };
-
           this.calculateRandomMovement();
           this.movement.batSpeed = this.movement.gameSpeed - 20;
           this.gamefield = new AbstractGameField({
             height: window.innerHeight * 0.8,
             width: window.innerWidth * 0.85
           });
+          //this.replayService.movement = this.movement;
           this.gamefield.setInitialGamefield();
           this.gameTicker.next(
             // how to cast classes ?
@@ -77,27 +79,57 @@ export class GameCalculationService {
           this.batInterval = null;
           this.gameInterval = null;
           break;
+        /*
+        case GameState.REPLAY:
+          clearInterval(this.batInterval);
+          this.batInterval = null;
+          if (!this.replayService.replayMode) {
+            this.replayService.replayMode = true;
+          }
+          if (!this.gameInterval) {
+            this.gameInterval = setInterval(() => {
+              const state = this.replayService.getNextGameState();
+              if (state) {
+                this.gameTicker.next(
+                  new GameFieldState(null, null, state.ball, null)
+                );
+              } else {
+                this.replayService.replayMode = false;
+                this.gameControlService.stopGame();
+                this.gameControlService.setInitialGameField();
+                this.gameControlService.startBatMovement();
+              }
+            }, 1000 / this.replayService.movement.gameSpeed);
+            if (!this.batInterval) {
+              this.batInterval = setInterval(() => {
+                const state = this.replayService.getNextBatState();
+                if (state) {
+                  this.gameTicker.next(
+                    new GameFieldState(state.leftBat, state.rightBat)
+                  );
+                }
+              }, 1000 / this.replayService.movement.batSpeed);
+            }
+          }
+          break;
+          */
       }
     });
+    //this.replayService = new ReplayService();
+    //this.replayService.setGameTicker(this.gameTicker);
   }
 
   private setGameCalculationInterval(): void {
     this.gameInterval = setInterval(() => {
       this.calculateGame();
       this.gameTicker.next(
-        new GameFieldState(
-          this.gamefield.leftBat,
-          this.gamefield.rightBat,
-          this.gamefield.ball,
-          this.gamefield
-        )
+        new GameFieldState(null, null, this.gamefield.ball, this.gamefield)
       );
     }, 1000 / this.movement.gameSpeed);
   }
 
   private setBatCalculationInterval(): void {
     this.batInterval = setInterval(() => {
-      //this.calculateBatPositions();
       this.gamefield.calculateBatPositions();
       this.gameTicker.next(
         new GameFieldState(this.gamefield.leftBat, this.gamefield.rightBat)

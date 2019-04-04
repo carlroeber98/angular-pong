@@ -1,4 +1,4 @@
-<app-gamefield (goalEvent)="goalEvent($event)"></app-gamefield>
+<app-gamefield (goalEvent)="onGoalEvent($event)"></app-gamefield>
 <app-points
   #points
   [leftPlayerPoints]="leftPlayerPoints"
@@ -19,5 +19,10 @@
   >
     {{ pauseButtonText }}
   </button>
-  <button (click)="resetGame()">Zurücksetzen</button>
+  <button style="margin-right: 20px" (click)="onResetGameButtonClicked()">
+    Zurücksetzen
+  </button>
+  <button (click)="onReplayGameButtonClicked()" [disabled]="gameIsRunning">
+    Replay
+  </button>
 </div>

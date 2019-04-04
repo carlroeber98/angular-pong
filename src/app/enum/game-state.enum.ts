@@ -3,5 +3,6 @@ export enum GameState {
   BATS_RUNNING = "bats-running",
   GAME_RUNNING = "game-running",
   STOPPED = "stopped",
-  PAUSED = "paused"
+  PAUSED = "paused",
+  REPLAY = "replay"
 }

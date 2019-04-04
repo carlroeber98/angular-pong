@@ -67,7 +67,7 @@ export class AppComponent implements OnInit {
     this.gameControlService.startGame();
   }
 
-  onPauseGameButtonClicked(): void {
+  public onPauseGameButtonClicked(): void {
     if (!this.gameIsRunning) {
       return;
     }
@@ -82,7 +82,7 @@ export class AppComponent implements OnInit {
     }
   }
 
-  goalEvent(leftGoal: boolean): void {
+  public onGoalEvent(leftGoal: boolean): void {
     this.gameControlService.stopGame();
     if (leftGoal) {
       this.rightPlayerPoints++;
@@ -92,27 +92,31 @@ export class AppComponent implements OnInit {
     this.resetField();
   }
 
-  resetField(): void {
+  private resetField(): void {
     this.gameControlService.setInitialGameField();
 
     if (this.leftPlayerPoints === 6) {
       alert("Player 1 won the game");
-      this.resetGame();
+      this.onResetGameButtonClicked();
       return;
     }
 
     if (this.rightPlayerPoints === 6) {
       alert("Player 2 won the game");
-      this.resetGame();
+      this.onResetGameButtonClicked();
       return;
     }
     this.gameControlService.startBatMovement();
   }
 
-  resetGame(): void {
+  public onResetGameButtonClicked(): void {
     this.gameControlService.stopGame();
     this.leftPlayerPoints = 0;
     this.rightPlayerPoints = 0;
     this.resetField();
+  }
+
+  public onReplayGameButtonClicked(): void {
+    this.gameControlService.replayGame();
   }
 }

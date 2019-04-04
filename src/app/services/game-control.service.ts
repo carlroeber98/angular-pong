@@ -46,6 +46,14 @@ export class GameControlService {
     this.gameHandler.next(GameState.INITIAL);
   }
 
+  public replayGame(): void {
+    clearInterval(this.interval);
+    this.interval = null;
+    this.interval = setInterval(() => {
+      this.gameHandler.next(GameState.REPLAY);
+    }, 1000 / this.framesPerSecond);
+  }
+
   public get getGameHandler(): Observable<GameState> {
     return this.gameHandler;
   }
