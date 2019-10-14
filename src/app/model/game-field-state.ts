@@ -1,6 +1,7 @@
 import { Bat } from "./bat";
 import { Ball } from "./ball";
 import { GameField } from "./game-field";
+import { stringify } from '@angular/compiler/src/util';
 
 export class GameFieldState {
   constructor(
@@ -24,5 +25,12 @@ export class GameFieldState {
 
   public get gameField(): any {
     return this._gamefield;
+  }
+
+  test(str?: string) {
+    if (str) {
+      return str
+    }
+    return '';
   }
 }

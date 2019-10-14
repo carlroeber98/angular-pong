@@ -1,10 +1,8 @@
 import { Injectable } from "@angular/core";
-import { GameCalculationService } from "./game-calculation.service";
-import { GameFieldState } from "../model/game-field-state";
-import { Array } from "core-js";
-import { Bat } from "../model/bat";
 import { Subject } from "rxjs";
 import { Ball } from "../model/ball";
+import { Bat } from "../model/bat";
+import { GameFieldState } from "../model/game-field-state";
 
 @Injectable({
   providedIn: "root"

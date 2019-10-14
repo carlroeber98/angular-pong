@@ -7,7 +7,6 @@ import {
   HostListener,
   OnInit
 } from "@angular/core";
-import { getTView } from "@angular/core/src/render3/state";
 import { KEY_CODE } from "./enum/key-code.enum";
 
 @Component({

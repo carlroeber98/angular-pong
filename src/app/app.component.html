@@ -6,6 +6,7 @@
 ></app-points>
 <div style="text-align:center; margin-top: 20px">
   <button
+    mat-button
     (click)="onStartGameGameButtonClicked()"
     [disabled]="gameIsRunning"
     style="margin-right: 20px"
@@ -13,16 +14,19 @@
     Starten
   </button>
   <button
+    mat-button
     (click)="onPauseGameButtonClicked()"
     [disabled]="!gameIsRunning"
     style="margin-right: 20px"
   >
     {{ pauseButtonText }}
   </button>
-  <button style="margin-right: 20px" (click)="onResetGameButtonClicked()">
-    Zurücksetzen
-  </button>
-  <button (click)="onReplayGameButtonClicked()" [disabled]="gameIsRunning">
+  <button
+    mat-button
+    (click)="onReplayGameButtonClicked()"
+    [disabled]="gameIsRunning"
+  >
     Replay
   </button>
+  <button mat-button color="primary" (click)="resetGame()">Zurücksetzen</button>
 </div>

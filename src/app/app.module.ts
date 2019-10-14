@@ -9,6 +9,8 @@ import { PointsComponent } from "./points/points.component";
 
 import { HttpClientModule } from "@angular/common/http";
 import { AngularSvgIconModule } from "angular-svg-icon";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {MatButtonModule, MatCheckboxModule, MatIconModule} from '@angular/material';
 
 @NgModule({
   declarations: [
@@ -18,7 +20,7 @@ import { AngularSvgIconModule } from "angular-svg-icon";
     BallComponent,
     PointsComponent
   ],
-  imports: [BrowserModule, HttpClientModule, AngularSvgIconModule],
+  imports: [BrowserModule, BrowserAnimationsModule, HttpClientModule, AngularSvgIconModule, MatButtonModule, MatIconModule],
   providers: [],
   bootstrap: [AppComponent]
 })
